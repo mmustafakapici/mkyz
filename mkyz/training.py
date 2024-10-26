@@ -4,22 +4,29 @@ from sklearn.ensemble import (
     GradientBoostingClassifier, GradientBoostingRegressor, ExtraTreesClassifier, ExtraTreesRegressor,
     VotingClassifier, VotingRegressor
 )
+from sklearn.gaussian_process import GaussianProcessClassifier, GaussianProcessRegressor
 from sklearn.linear_model import (
     LogisticRegression, LinearRegression, Ridge, Lasso, ElasticNet,
     SGDClassifier, SGDRegressor, RidgeClassifier, PassiveAggressiveClassifier, PassiveAggressiveRegressor
 )
 from sklearn.svm import SVC, SVR
-from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor, KNeighborsRegressor
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.naive_bayes import GaussianNB, MultinomialNB, BernoulliNB
 from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering, Birch, MeanShift, SpectralClustering
 from sklearn.decomposition import PCA, TruncatedSVD, FactorAnalysis, NMF
 from sklearn.mixture import GaussianMixture
 from sklearn.neural_network import MLPClassifier, MLPRegressor
-from sklearn.ensemble import GradientBoostingClassifier, GradientBoostingRegressor
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, mean_squared_error
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, mean_squared_error, r2_score, \
+    mean_absolute_error, mean_squared_log_error, explained_variance_score, max_error, silhouette_score, f1_score, \
+    precision_score, recall_score, roc_auc_score
+from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.pipeline import make_pipeline
 
+import numpy as np
+
+import optuna
+from sklearn.model_selection import cross_val_score
 # Additional libraries for XGBoost, LightGBM, CatBoost
 try:
     import xgboost as xgb
@@ -36,583 +43,932 @@ try:
 except ImportError:
     cb = None
 
+import optuna
+from sklearn.model_selection import cross_val_score
+
 from mlxtend.frequent_patterns import apriori, association_rules
 
-# Global variable to store trained models
+# Libraries for enhanced output
+from rich.console import Console
+from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn
+from rich.table import Table
+from rich import box
+import concurrent.futures
+import time
+import yaml
+
+import time
+import concurrent.futures
+import yaml
+from rich.console import Console
+from rich.table import Table
+from rich.progress import Progress, TextColumn, BarColumn, TimeRemainingColumn
+from rich import box
+
+import warnings
+warnings.filterwarnings("ignore")
+
+import logging
+
+# Initialize Rich Console
+console = Console()
+
+# Suppress logging from XGBoost, LightGBM, and CatBoost
+logging.getLogger('xgboost').setLevel(logging.ERROR)
+logging.getLogger('lightgbm').setLevel(logging.ERROR)
+logging.getLogger('catboost').setLevel(logging.ERROR)
+
+
+
+#-----------------------------------------------------------------------------------------------------------------------
+# Global dictionary to store trained models
 MODELS = {}
 
-# ---- CLASSIFICATION ----
-def train_random_forest_classification(X_train, y_train, **model_params):
-    n_estimators = model_params.get('n_estimators', 100)
-    clf = RandomForestClassifier(n_estimators=n_estimators, random_state=42, **model_params)
-    clf.fit(X_train, y_train)
-    return clf
+# Dictionary of classification models
+CLASSIFICATION_MODELS = {
+    'rf': RandomForestClassifier,
+    'lr': LogisticRegression,
+    'svm': SVC,
+    'knn': KNeighborsClassifier,
+    'dt': DecisionTreeClassifier,
+    'nb': GaussianNB,
+    'gb': GradientBoostingClassifier,
+    #'xgb': xgb.XGBClassifier if xgb else None,
+    #'lgbm': lgb.LGBMClassifier if lgb else None,
+    #'catboost': cb.CatBoostClassifier if cb else None,
+    #'sgd': SGDClassifier,
+    #'pa': PassiveAggressiveClassifier,
+    #'ridge_cls': RidgeClassifier,
+    #'mlp': MLPClassifier,
+    #'et': ExtraTreesClassifier,
+    #'gp': GaussianProcessClassifier,
+    # Add other classification models if needed
+}
 
-def train_logistic_regression(X_train, y_train, **model_params):
-    clf = LogisticRegression(**model_params)
-    clf.fit(X_train, y_train)
-    return clf
+# Dictionary of regression models
+REGRESSION_MODELS = {
+    'rf': RandomForestRegressor,
+    'lr': LinearRegression,
+    'svm': SVR,
+    'knn': KNeighborsRegressor,
+    'dt': DecisionTreeRegressor,
+    #'ridge': Ridge,
+    #'lasso': Lasso,
+    #'elasticnet': ElasticNet,
+    #'gb': GradientBoostingRegressor,
+    #'xgb': xgb.XGBRegressor if xgb else None,
+    #'lgbm': lgb.LGBMRegressor if lgb else None,
+    #'catboost': cb.CatBoostRegressor if cb else None,
+    #'sgd': SGDRegressor,
+    #'pa': PassiveAggressiveRegressor,
+    #'mlp': MLPRegressor,
+    #'et': ExtraTreesRegressor,
+    #'gp': GaussianProcessRegressor,
+    # Add other regression models
+}
 
-def train_svm_classification(X_train, y_train, **model_params):
-    clf = SVC(**model_params)
-    clf.fit(X_train, y_train)
-    return clf
+# Dictionary of clustering models
+CLUSTERING_MODELS = {
+    'kmeans': KMeans,
+    'dbscan': DBSCAN,
+    'agglomerative': AgglomerativeClustering,
+    'gmm': GaussianMixture,
+    'mean_shift': MeanShift,
+    'spectral': SpectralClustering,
+    'birch': Birch,
+    # Add other clustering models
+}
 
-def train_knn_classification(X_train, y_train, **model_params):
-    n_neighbors = model_params.get('n_neighbors', 5)
-    clf = KNeighborsClassifier(n_neighbors=n_neighbors, **model_params)
-    clf.fit(X_train, y_train)
-    return clf
+# Dictionary of dimensionality reduction models
+DIMENSIONALITY_REDUCTION_MODELS = {
+    'pca': PCA,
+    'svd': TruncatedSVD,
+    'factor_analysis': FactorAnalysis,
+    'nmf': NMF,
+    # Add other dimensionality reduction models
+}
 
-def train_decision_tree_classification(X_train, y_train, **model_params):
-    clf = DecisionTreeClassifier(**model_params)
-    clf.fit(X_train, y_train)
-    return clf
+# Dictionary of model training functions
+TRAIN_FUNCTIONS = {
+    'classification': lambda X, y, model, **params: model(**params).fit(X, y),
+    'regression': lambda X, y, model, **params: model(**params).fit(X, y),
+    'clustering': lambda X, model, **params: model(**params).fit(X),
+    'dimensionality_reduction': lambda X, model, **params: model(**params).fit_transform(X),
+}
 
-def train_naive_bayes_classification(X_train, y_train, model_type='gaussian', **model_params):
-    if model_type == 'gaussian':
-        clf = GaussianNB(**model_params)
-    elif model_type == 'multinomial':
-        clf = MultinomialNB(**model_params)
-    elif model_type == 'bernoulli':
-        clf = BernoulliNB(**model_params)
-    else:
-        raise ValueError(f"Unsupported Naive Bayes type: {model_type}")
-    clf.fit(X_train, y_train)
-    return clf
+# Dictionary of model hyperparameter grids for optimization
+PARAM_GRIDS = {
+    'rf': {
+        'n_estimators': [100, 200, 300],
+        'max_depth': [None, 10, 20, 30],
+        'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 2, 4],
+        'bootstrap': [True, False]
+    },
+    'lr': [
+        {
+            'C': [0.001, 0.01, 0.1, 1, 10, 100],
+            'penalty': ['l2'],
+            'solver': ['lbfgs'],
+            'max_iter': [1000]
+        },
+        {
+            'C': [0.001, 0.01, 0.1, 1, 10, 100],
+            'penalty': ['l1'],
+            'solver': ['saga'],
+            'max_iter': [1000]
+        }
+    ],
+    'svm': {
+        'C': [0.1, 1, 10],
+        'kernel': ['rbf', 'linear', 'poly'],
+        'gamma': ['scale', 'auto']
+    },
+    'knn': {
+        'n_neighbors': [3, 5, 7, 9],
+        'weights': ['uniform', 'distance'],
+        'metric': ['euclidean', 'manhattan']
+    },
+    'dt': {
+        'max_depth': [None, 10, 20, 30],
+        'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 2, 4],
+        'criterion': ['gini', 'entropy']
+    },
+    'nb': {
+        'var_smoothing': [1e-09, 1e-08, 1e-07]
+    },
+    'gb': {
+        'n_estimators': [100, 200, 300],
+        'learning_rate': [0.01, 0.1, 0.2],
+        'max_depth': [3, 5, 7],
+        'subsample': [0.8, 1.0]
+    },
+    'xgb': {
+        'n_estimators': [100, 200, 300],
+        'learning_rate': [0.01, 0.1, 0.2],
+        'max_depth': [3, 5, 7],
+        'subsample': [0.8, 1.0],
+        'colsample_bytree': [0.8, 1.0],
+        'verbosity': [0]  # XGBoost için verbosity parametresi
+    },
+    'lgbm': {
+        'n_estimators': [100, 200, 300],
+        'learning_rate': [0.01, 0.1, 0.2],
+        'max_depth': [3, 5, 7],
+        'num_leaves': [31, 50, 100],
+        'boosting_type': ['gbdt', 'dart'],
+        'verbose': [-1]  # LightGBM için verbose parametresi
+    },
+    'catboost': {
+        'iterations': [100, 200, 300],
+        'learning_rate': [0.01, 0.1, 0.2],
+        'depth': [3, 5, 7],
+        'l2_leaf_reg': [1, 3, 5, 7, 9],
+        'logging_level': ['Silent']  # CatBoost için logging_level parametresi
+    },
+    'sgd': {
+        'loss': ['hinge', 'log', 'modified_huber'],
+        'penalty': ['l2', 'l1', 'elasticnet'],
+        'alpha': [0.0001, 0.001, 0.01],
+        'max_iter': [1000, 2000, 3000]
+    },
+    'pa': {
+        'C': [0.1, 1.0, 10.0],
+        'loss': ['hinge', 'squared_hinge']
+    },
+    'ridge_cls': {
+        'alpha': [0.1, 1.0, 10.0],
+        'solver': ['auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg']
+    },
+    'mlp': {
+        'hidden_layer_sizes': [(100,), (50, 50), (100, 50)],
+        'activation': ['relu', 'tanh', 'logistic'],
+        'solver': ['adam', 'sgd'],
+        'alpha': [0.0001, 0.001, 0.01],
+        'learning_rate': ['constant', 'adaptive']
+    },
+    'et': {
+        'n_estimators': [100, 200, 300],
+        'max_depth': [None, 10, 20, 30],
+        'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 2, 4],
+        'bootstrap': [True, False]
+    },
+    'gp': {
+        'kernel': [None, 'rbf', 'linear'],
+        'optimizer': ['fmin_l_bfgs_b', 'lbfgs']
+    },
+    'linear_regression': {
+        'fit_intercept': [True, False],
+        'normalize': [True, False],
+        'copy_X': [True, False]
+    },
+    'ridge': {
+        'alpha': [0.1, 1.0, 10.0],
+        'solver': ['auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg']
+    },
+    'lasso': {
+        'alpha': [0.1, 1.0, 10.0],
+        'selection': ['cyclic', 'random']
+    },
+    'elasticnet': {
+        'alpha': [0.1, 1.0, 10.0],
+        'l1_ratio': [0.1, 0.5, 0.9],
+        'selection': ['cyclic', 'random']
+    },
+    'svr': {
+        'C': [0.1, 1, 10],
+        'kernel': ['rbf', 'linear', 'poly'],
+        'gamma': ['scale', 'auto']
+    },
+    'kmeans': {
+        'n_clusters': [3, 5, 7, 9],
+        'init': ['k-means++', 'random'],
+        'n_init': [10, 20, 30],
+        'max_iter': [300, 600, 900]
+    },
+    'dbscan': {
+        'eps': [0.3, 0.5, 0.7],
+        'min_samples': [5, 10, 15],
+        'metric': ['euclidean', 'manhattan']
+    },
+    'agglomerative': {
+        'n_clusters': [2, 3, 4, 5],
+        'affinity': ['euclidean', 'manhattan', 'cosine'],
+        'linkage': ['ward', 'complete', 'average']
+    },
+    'gmm': {
+        'n_components': [1, 2, 3, 4, 5],
+        'covariance_type': ['full', 'tied', 'diag', 'spherical'],
+        'max_iter': [100, 200, 300]
+    },
+    'mean_shift': {
+        'bandwidth': [1, 2, 3, 4],
+        'seeds': [None, 'k-means'],
+        'bin_seeding': [True, False]
+    },
+    'spectral': {
+        'n_clusters': [2, 3, 4, 5],
+        'affinity': ['nearest_neighbors', 'rbf'],
+        'n_neighbors': [5, 10, 15]
+    },
+    'birch': {
+        'n_clusters': [None, 2, 3, 4, 5],
+        'threshold': [0.5, 1.0, 1.5],
+        'branching_factor': [20, 30, 40]
+    },
+    'pca': {
+        'n_components': [2, 5, 10, 15],
+        'svd_solver': ['auto', 'full', 'arpack', 'randomized'],
+        'whiten': [True, False]
+    },
+    'svd': {
+        'n_components': [2, 5, 10, 15],
+        'n_iter': [5, 10, 20],
+        'random_state': [42]
+    },
+    'factor_analysis': {
+        'n_components': [2, 5, 10, 15],
+        'tol': [0.001, 0.01, 0.1],
+        'max_iter': [100, 200, 300]
+    },
+    'nmf': {
+        'n_components': [2, 5, 10, 15],
+        'init': ['random', 'nndsvd'],
+        'solver': ['cd', 'mu'],
+        'beta_loss': ['frobenius', 'kullback-leibler', 'itakura-saito']
+    },
+    # Diğer modeller için hiperparametre ızgaralarını ekleyin
+}
 
-def train_gradient_boosting_classification(X_train, y_train, **model_params):
-    clf = GradientBoostingClassifier(**model_params)
-    clf.fit(X_train, y_train)
-    return clf
+# Dictionary of model evaluation functions
+EVALUATE_FUNCTIONS = {
+    'classification': lambda y_true, y_pred: {
+        'accuracy': accuracy_score(y_true, y_pred),
+        'f1_score': f1_score(y_true, y_pred, average='weighted'),
+        'precision': precision_score(y_true, y_pred, average='weighted'),
+        'recall': recall_score(y_true, y_pred, average='weighted'),
+        'roc_auc': roc_auc_score(y_true, y_pred, average='weighted', multi_class='ovr') if len(set(y_true)) > 2 else roc_auc_score(y_true, y_pred)
+    },
+    'regression': lambda y_true, y_pred: {
+        'mean_squared_error': mean_squared_error(y_true, y_pred),
+        'r2_score': r2_score(y_true, y_pred),
+        'mean_absolute_error': mean_absolute_error(y_true, y_pred),
+        'mean_squared_log_error': mean_squared_log_error(y_true, y_pred),
+        'explained_variance_score': explained_variance_score(y_true, y_pred),
+        'max_error': max_error(y_true, y_pred)
+    },
+    'clustering': lambda X, labels: {
+        'silhouette_score': silhouette_score(X, labels) if len(set(labels)) > 1 else -1
+    },
+    'dimensionality_reduction': lambda X, X_reduced: {
+        'reconstruction_error': np.mean(np.abs(X - X_reduced))
+    }
+    # Additional evaluation metrics can be added as needed
+}
 
-def train_xgboost_classification(X_train, y_train, **model_params):
-    if xgb is None:
-        raise ImportError("xgboost is not installed.")
-    clf = xgb.XGBClassifier(use_label_encoder=False, eval_metric='logloss', **model_params)
-    clf.fit(X_train, y_train)
-    return clf
-
-def train_lightgbm_classification(X_train, y_train, **model_params):
-    if lgb is None:
-        raise ImportError("lightgbm is not installed.")
-    clf = lgb.LGBMClassifier(**model_params)
-    clf.fit(X_train, y_train)
-    return clf
-
-def train_catboost_classification(X_train, y_train, **model_params):
-    if cb is None:
-        raise ImportError("catboost is not installed.")
-    clf = cb.CatBoostClassifier(verbose=0, **model_params)
-    clf.fit(X_train, y_train)
-    return clf
-
-def train_sgd_classification(X_train, y_train, **model_params):
-    clf = SGDClassifier(**model_params)
-    clf.fit(X_train, y_train)
-    return clf
-
-def train_passive_aggressive_classification(X_train, y_train, **model_params):
-    clf = PassiveAggressiveClassifier(**model_params)
-    clf.fit(X_train, y_train)
-    return clf
-
-def train_ridge_classifier(X_train, y_train, **model_params):
-    clf = RidgeClassifier(**model_params)
-    clf.fit(X_train, y_train)
-    return clf
-
-def train_mlp_classification(X_train, y_train, **model_params):
-    clf = MLPClassifier(**model_params)
-    clf.fit(X_train, y_train)
-    return clf
-
-def train_extra_trees_classification(X_train, y_train, **model_params):
-    clf = ExtraTreesClassifier(**model_params)
-    clf.fit(X_train, y_train)
-    return clf
-
-def train_gaussian_process_classification(X_train, y_train, **model_params):
-    from sklearn.gaussian_process import GaussianProcessClassifier
-    clf = GaussianProcessClassifier(**model_params)
-    clf.fit(X_train, y_train)
-    return clf
-
-# ---- REGRESSION ----
-def train_random_forest_regression(X_train, y_train, **model_params):
-    n_estimators = model_params.get('n_estimators', 100)
-    reg = RandomForestRegressor(n_estimators=n_estimators, random_state=42, **model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-def train_linear_regression(X_train, y_train, **model_params):
-    reg = LinearRegression(**model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-def train_svm_regression(X_train, y_train, **model_params):
-    reg = SVR(**model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-def train_knn_regression(X_train, y_train, **model_params):
-    n_neighbors = model_params.get('n_neighbors', 5)
-    reg = KNeighborsRegressor(n_neighbors=n_neighbors, **model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-def train_decision_tree_regression(X_train, y_train, **model_params):
-    reg = DecisionTreeRegressor(**model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-def train_ridge_regression(X_train, y_train, **model_params):
-    reg = Ridge(**model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-def train_lasso_regression(X_train, y_train, **model_params):
-    reg = Lasso(**model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-def train_elastic_net_regression(X_train, y_train, **model_params):
-    reg = ElasticNet(**model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-def train_gradient_boosting_regression(X_train, y_train, **model_params):
-    reg = GradientBoostingRegressor(**model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-def train_xgboost_regression(X_train, y_train, **model_params):
-    if xgb is None:
-        raise ImportError("xgboost is not installed.")
-    reg = xgb.XGBRegressor(**model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-def train_lightgbm_regression(X_train, y_train, **model_params):
-    if lgb is None:
-        raise ImportError("lightgbm is not installed.")
-    reg = lgb.LGBMRegressor(**model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-def train_catboost_regression(X_train, y_train, **model_params):
-    if cb is None:
-        raise ImportError("catboost is not installed.")
-    reg = cb.CatBoostRegressor(verbose=0, **model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-def train_sgd_regression(X_train, y_train, **model_params):
-    reg = SGDRegressor(**model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-def train_passive_aggressive_regression(X_train, y_train, **model_params):
-    reg = PassiveAggressiveRegressor(**model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-def train_mlp_regression(X_train, y_train, **model_params):
-    reg = MLPRegressor(**model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-def train_extra_trees_regression(X_train, y_train, **model_params):
-    reg = ExtraTreesRegressor(**model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-def train_gaussian_process_regression(X_train, y_train, **model_params):
-    from sklearn.gaussian_process import GaussianProcessRegressor
-    reg = GaussianProcessRegressor(**model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-# ---- CLUSTERING ----
-def train_kmeans_clustering(X_train, **model_params):
-    n_clusters = model_params.get('n_clusters', 3)
-    cluster = KMeans(n_clusters=n_clusters, random_state=42, **model_params)
-    cluster.fit(X_train)
-    return cluster
-
-def train_dbscan_clustering(X_train, **model_params):
-    eps = model_params.get('eps', 0.5)
-    min_samples = model_params.get('min_samples', 5)
-    cluster = DBSCAN(eps=eps, min_samples=min_samples, **model_params)
-    cluster.fit(X_train)
-    return cluster
-
-def train_agglomerative_clustering(X_train, **model_params):
-    n_clusters = model_params.get('n_clusters', 3)
-    cluster = AgglomerativeClustering(n_clusters=n_clusters, **model_params)
-    cluster.fit(X_train)
-    return cluster
-
-def train_gaussian_mixture_clustering(X_train, **model_params):
-    n_components = model_params.get('n_components', 3)
-    cluster = GaussianMixture(n_components=n_components, random_state=42, **model_params)
-    cluster.fit(X_train)
-    return cluster
-
-def train_mean_shift_clustering(X_train, **model_params):
-    cluster = MeanShift(**model_params)
-    cluster.fit(X_train)
-    return cluster
-
-def train_spectral_clustering(X_train, **model_params):
-    n_clusters = model_params.get('n_clusters', 3)
-    cluster = SpectralClustering(n_clusters=n_clusters, random_state=42, **model_params)
-    cluster.fit(X_train)
-    return cluster
-
-def train_birch_clustering(X_train, **model_params):
-    n_clusters = model_params.get('n_clusters', 3)
-    cluster = Birch(n_clusters=n_clusters, **model_params)
-    cluster.fit(X_train)
-    return cluster
-
-# ---- ASSOCIATION RULE LEARNING ----
-def train_apriori(X_train, **model_params):
-    min_support = model_params.get('min_support', 0.1)
-    frequent_itemsets = apriori(X_train, min_support=min_support, use_colnames=True)
-    rules = association_rules(frequent_itemsets, metric="confidence", min_threshold=0.5)
-    return rules
-
-# ---- DIMENSIONALITY REDUCTION ----
-def train_pca(X_train, **model_params):
-    n_components = model_params.get('n_components', 2)
-    pca = PCA(n_components=n_components, **model_params)
-    X_reduced = pca.fit_transform(X_train)
-    return pca, X_reduced
-
-def train_truncated_svd(X_train, **model_params):
-    n_components = model_params.get('n_components', 2)
-    svd = TruncatedSVD(n_components=n_components, **model_params)
-    X_reduced = svd.fit_transform(X_train)
-    return svd, X_reduced
-
-def train_factor_analysis(X_train, **model_params):
-    n_components = model_params.get('n_components', 2)
-    fa = FactorAnalysis(n_components=n_components, **model_params)
-    X_reduced = fa.fit_transform(X_train)
-    return fa, X_reduced
-
-def train_nmf(X_train, **model_params):
-    n_components = model_params.get('n_components', 2)
-    nmf = NMF(n_components=n_components, **model_params)
-    X_reduced = nmf.fit_transform(X_train)
-    return nmf, X_reduced
-
-# ---- ENSEMBLING METHODS ----
-def train_bagging_classification(X_train, y_train, base_estimator=DecisionTreeClassifier(), **model_params):
-    clf = BaggingClassifier(base_estimator=base_estimator, **model_params)
-    clf.fit(X_train, y_train)
-    return clf
-
-def train_bagging_regression(X_train, y_train, base_estimator=DecisionTreeRegressor(), **model_params):
-    reg = BaggingRegressor(base_estimator=base_estimator, **model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-def train_adaboost_classification(X_train, y_train, **model_params):
-    clf = AdaBoostClassifier(**model_params)
-    clf.fit(X_train, y_train)
-    return clf
-
-def train_adaboost_regression(X_train, y_train, **model_params):
-    reg = AdaBoostRegressor(**model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-def train_stacking_classification(X_train, y_train, estimators, final_estimator, **model_params):
-    clf = StackingClassifier(estimators=estimators, final_estimator=final_estimator, **model_params)
-    clf.fit(X_train, y_train)
-    return clf
-
-def train_stacking_regression(X_train, y_train, estimators, final_estimator, **model_params):
-    reg = StackingRegressor(estimators=estimators, final_estimator=final_estimator, **model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-def train_voting_classification(X_train, y_train, estimators, voting='hard', **model_params):
-    clf = VotingClassifier(estimators=estimators, voting=voting, **model_params)
-    clf.fit(X_train, y_train)
-    return clf
-
-def train_voting_regression(X_train, y_train, estimators, voting='hard', **model_params):
-    reg = VotingRegressor(estimators=estimators, **model_params)
-    reg.fit(X_train, y_train)
-    return reg
-
-# ---- GENERAL TRAIN FUNCTION ----
+# Dictionary of verbosity parameters for models when optimize_models=False
+VERBOSITY_PARAMS = {
+    'xgb': {'verbosity': 0},
+    'lgbm': {'verbose': -1},
+    'catboost': {'logging_level': 'Silent'},
+    # Diğer modeller için boş sözlük veya ilgili verbosity parametrelerini ekleyin
+}
+#
 def train(data, task='classification', model='rf', **model_params):
     """
-    Trains a machine learning model based on the task and model specified.
+    Trains a machine learning model based on the specified task and model type.
+
+    This function handles different machine learning tasks such as classification, regression,
+    clustering, and dimensionality reduction. It selects the appropriate model class and training
+    function based on the task and model type provided. The trained model is then stored in a
+    global `MODELS` dictionary for later use.
 
     Args:
-        data (tuple): A tuple of (X, y) containing the training data and target labels.
-        task (str, optional): The type of task ('classification', 'regression', or 'clustering'). Defaults to 'classification'.
-        model (str, optional): The model to be trained (e.g., 'rf' for Random Forest, 'svm' for Support Vector Machine). Defaults to 'rf'.
-        **model_params: Additional model-specific parameters.
+        data (tuple): A tuple containing the following elements in order:
+            - X_train (pd.DataFrame): Training feature set.
+            - X_test (pd.DataFrame): Testing feature set.
+            - y_train (pd.Series): Training labels.
+            - y_test (pd.Series): Testing labels.
+            - df (pd.DataFrame): The original dataframe.
+            - target_column (str): The name of the target column.
+            - numerical_columns (list): List of numerical feature column names.
+            - categorical_columns (list): List of categorical feature column names.
+        task (str, optional): The machine learning task to perform. 
+            Defaults to 'classification'. 
+            Supported tasks:
+            - 'classification'
+            - 'regression'
+            - 'clustering'
+            - 'dimensionality_reduction'
+        model (str, optional): The type of model to train. Defaults to 'rf' (Random Forest).
+            Supported models depend on the specified task.
+        **model_params: Additional keyword arguments to pass to the model constructor.
 
     Returns:
-        object: The trained model object.
+        Trained model object: The trained machine learning model.
 
-    Usage:
-        >>> from mkyz import training as tr
-        >>> model = tr.train(data=data, task='classification', model='rf', n_estimators=100)
+    Raises:
+        ValueError: If an unsupported task type or model type is provided.
+
+    Examples:
+        >>> # Example for classification task with Random Forest
+        >>> trained_rf = train(data, task='classification', model='rf', n_estimators=100, random_state=42)
+
+        >>> # Example for regression task with Linear Regression
+        >>> trained_lr = train(data, task='regression', model='linear', fit_intercept=True)
+
+        >>> # Example for clustering task with K-Means
+        >>> trained_km = train(data, task='clustering', model='kmeans', n_clusters=5)
+
+        >>> # Example for dimensionality reduction with PCA
+        >>> trained_pca = train(data, task='dimensionality_reduction', model='pca', n_components=2)
     """
-    
-    
-    X_train, X_test, y_train, y_test, df, target_column , numerical_columns, categorical_columns = data
+    X_train, X_test, y_train, y_test, df, target_column, numerical_columns, categorical_columns = data
 
-    # Classification
     if task == 'classification':
-        if model == 'rf':
-            clf = train_random_forest_classification(X_train, y_train, **model_params)
-        elif model == 'lr':
-            clf = train_logistic_regression(X_train, y_train, **model_params)
-        elif model == 'svm':
-            clf = train_svm_classification(X_train, y_train, **model_params)
-        elif model == 'knn':
-            clf = train_knn_classification(X_train, y_train, **model_params)
-        elif model == 'dt':
-            clf = train_decision_tree_classification(X_train, y_train, **model_params)
-        elif model == 'nb':
-            clf = train_naive_bayes_classification(X_train, y_train, **model_params)
-        elif model == 'gb':
-            clf = train_gradient_boosting_classification(X_train, y_train, **model_params)
-        elif model == 'xgb':
-            clf = train_xgboost_classification(X_train, y_train, **model_params)
-        elif model == 'lgbm':
-            clf = train_lightgbm_classification(X_train, y_train, **model_params)
-        elif model == 'catboost':
-            clf = train_catboost_classification(X_train, y_train, **model_params)
-        elif model == 'sgd':
-            clf = train_sgd_classification(X_train, y_train, **model_params)
-        elif model == 'pa':
-            clf = train_passive_aggressive_classification(X_train, y_train, **model_params)
-        elif model == 'ridge_cls':
-            clf = train_ridge_classifier(X_train, y_train, **model_params)
-        elif model == 'mlp':
-            clf = train_mlp_classification(X_train, y_train, **model_params)
-        elif model == 'et':
-            clf = train_extra_trees_classification(X_train, y_train, **model_params)
-        elif model == 'gp':
-            clf = train_gaussian_process_classification(X_train, y_train, **model_params)
-        elif model == 'voting':
-            estimators = model_params.get('estimators', [])
-            voting_type = model_params.get('voting', 'hard')
-            clf = train_voting_classification(X_train, y_train, estimators, voting=voting_type, **model_params)
-        elif model == 'bagging':
-            clf = train_bagging_classification(X_train, y_train, **model_params)
-        elif model == 'boosting':
-            clf = train_adaboost_classification(X_train, y_train, **model_params)
-        elif model == 'stacking':
-            estimators = model_params.get('estimators', [])
-            final_estimator = model_params.get('final_estimator', LogisticRegression())
-            clf = train_stacking_classification(X_train, y_train, estimators, final_estimator, **model_params)
-        else:
-            raise ValueError(f"Unsupported model type for classification: {model}")
-        MODELS[model] = clf
-        return clf
-
-    # Regression
+        model_class = CLASSIFICATION_MODELS.get(model)
     elif task == 'regression':
-        if model == 'rf':
-            reg = train_random_forest_regression(X_train, y_train, **model_params)
-        elif model == 'lr':
-            reg = train_linear_regression(X_train, y_train, **model_params)
-        elif model == 'svm':
-            reg = train_svm_regression(X_train, y_train, **model_params)
-        elif model == 'knn':
-            reg = train_knn_regression(X_train, y_train, **model_params)
-        elif model == 'dt':
-            reg = train_decision_tree_regression(X_train, y_train, **model_params)
-        elif model == 'ridge':
-            reg = train_ridge_regression(X_train, y_train, **model_params)
-        elif model == 'lasso':
-            reg = train_lasso_regression(X_train, y_train, **model_params)
-        elif model == 'elasticnet':
-            reg = train_elastic_net_regression(X_train, y_train, **model_params)
-        elif model == 'gb':
-            reg = train_gradient_boosting_regression(X_train, y_train, **model_params)
-        elif model == 'xgb':
-            reg = train_xgboost_regression(X_train, y_train, **model_params)
-        elif model == 'lgbm':
-            reg = train_lightgbm_regression(X_train, y_train, **model_params)
-        elif model == 'catboost':
-            reg = train_catboost_regression(X_train, y_train, **model_params)
-        elif model == 'sgd':
-            reg = train_sgd_regression(X_train, y_train, **model_params)
-        elif model == 'pa':
-            reg = train_passive_aggressive_regression(X_train, y_train, **model_params)
-        elif model == 'mlp':
-            reg = train_mlp_regression(X_train, y_train, **model_params)
-        elif model == 'et':
-            reg = train_extra_trees_regression(X_train, y_train, **model_params)
-        elif model == 'gp':
-            reg = train_gaussian_process_regression(X_train, y_train, **model_params)
-        elif model == 'voting':
-            estimators = model_params.get('estimators', [])
-            reg = train_voting_regression(X_train, y_train, estimators, **model_params)
-        elif model == 'bagging':
-            reg = train_bagging_regression(X_train, y_train, **model_params)
-        elif model == 'boosting':
-            reg = train_adaboost_regression(X_train, y_train, **model_params)
-        elif model == 'stacking':
-            estimators = model_params.get('estimators', [])
-            final_estimator = model_params.get('final_estimator', LinearRegression())
-            reg = train_stacking_regression(X_train, y_train, estimators, final_estimator, **model_params)
-        else:
-            raise ValueError(f"Unsupported model type for regression: {model}")
-        MODELS[model] = reg
-        return reg
-
-    # Clustering
+        model_class = REGRESSION_MODELS.get(model)
     elif task == 'clustering':
-        if model == 'kmeans':
-            cluster = train_kmeans_clustering(X_train, **model_params)
-        elif model == 'dbscan':
-            cluster = train_dbscan_clustering(X_train, **model_params)
-        elif model == 'agglomerative':
-            cluster = train_agglomerative_clustering(X_train, **model_params)
-        elif model == 'gmm':
-            cluster = train_gaussian_mixture_clustering(X_train, **model_params)
-        elif model == 'mean_shift':
-            cluster = train_mean_shift_clustering(X_train, **model_params)
-        elif model == 'spectral':
-            cluster = train_spectral_clustering(X_train, **model_params)
-        elif model == 'birch':
-            cluster = train_birch_clustering(X_train, **model_params)
-        else:
-            raise ValueError(f"Unsupported model type for clustering: {model}")
-        MODELS[model] = cluster
-        return cluster
-
-    # Association Rule Learning
-    elif task == 'association':
-        if model == 'apriori':
-            rules = train_apriori(X_train, **model_params)
-            return rules
-        else:
-            raise ValueError(f"Unsupported model type for association rule learning: {model}")
-
-    # Dimensionality Reduction
+        model_class = CLUSTERING_MODELS.get(model)
     elif task == 'dimensionality_reduction':
-        if model == 'pca':
-            pca, X_reduced = train_pca(X_train, **model_params)
-            return pca, X_reduced
-        elif model == 'svd':
-            svd, X_reduced = train_truncated_svd(X_train, **model_params)
-            return svd, X_reduced
-        elif model == 'factor_analysis':
-            fa, X_reduced = train_factor_analysis(X_train, **model_params)
-            return fa, X_reduced
-        elif model == 'nmf':
-            nmf, X_reduced = train_nmf(X_train, **model_params)
-            return nmf, X_reduced
-        else:
-            raise ValueError(f"Unsupported model type for dimensionality reduction: {model}")
-
+        model_class = DIMENSIONALITY_REDUCTION_MODELS.get(model)
     else:
         raise ValueError(f"Unsupported task type: {task}")
 
-# ---- PREDICT FUNCTION ----
+    if model_class is None:
+        raise ValueError(f"Unsupported model type for {task}: {model}")
+
+    train_func = TRAIN_FUNCTIONS[task]
+
+    if task in ['classification', 'regression']:
+        trained_model = train_func(X_train, y_train, model_class, **model_params)
+    else:
+        trained_model = train_func(X_train, model_class, **model_params)
+
+    MODELS[model] = trained_model
+    return trained_model
+
 def predict(data, fitted_model=None, task='classification', model='rf'):
     """
-    Makes predictions on the provided data using the fitted model.
+    Makes predictions on the provided data using a trained machine learning model.
+
+    This function utilizes a pre-trained model to generate predictions for the test dataset.
+    It supports various machine learning tasks such as classification, regression, clustering,
+    and dimensionality reduction. If no fitted model is provided, it retrieves the model
+    from the global `MODELS` dictionary based on the specified model type.
 
     Args:
-        data (array-like): Data to make predictions on.
-        fitted_model (object, optional): The pre-trained model to use for predictions. Defaults to None.
-        task (str, optional): The type of task ('classification', 'regression'). Defaults to 'classification'.
-        model (str, optional): The model type (e.g., 'rf' for Random Forest). Defaults to 'rf'.
+        data (tuple): A tuple containing the following elements in order:
+            - X_train (pd.DataFrame): Training feature set.
+            - X_test (pd.DataFrame): Testing feature set.
+            - y_train (pd.Series): Training labels.
+            - y_test (pd.Series): Testing labels.
+            - df (pd.DataFrame): The original dataframe.
+            - target_column (str): The name of the target column.
+            - numerical_columns (list): List of numerical feature column names.
+            - categorical_columns (list): List of categorical feature column names.
+        fitted_model (object, optional): A pre-trained machine learning model.
+            If not provided, the model specified by the `model` parameter will be used.
+        task (str, optional): The machine learning task to perform predictions for.
+            Defaults to 'classification'.
+            Supported tasks:
+            - 'classification'
+            - 'regression'
+            - 'clustering'
+            - 'dimensionality_reduction'
+        model (str, optional): The type of model to use for predictions.
+            Defaults to 'rf' (Random Forest).
+            Supported models depend on the specified task.
 
     Returns:
-        array-like: The predicted labels or values.
+        np.ndarray or pd.DataFrame: The prediction results.
+            - For 'classification', 'regression', and 'clustering' tasks, returns a NumPy array of predictions.
+            - For 'dimensionality_reduction' tasks, returns a transformed Pandas DataFrame.
 
-    Usage:
-        >>> predictions = tr.predict(data=data, fitted_model=model, task='classification')
+    Raises:
+        ValueError: If the specified model has not been trained or is not available.
+
+    Examples:
+        >>> # Example using a trained Random Forest classifier from MODELS dictionary
+        >>> predictions = predict(data, task='classification', model='rf')
+
+        >>> # Example using a provided fitted model for regression
+        >>> from sklearn.linear_model import LinearRegression
+        >>> lr_model = LinearRegression().fit(X_train, y_train)
+        >>> predictions = predict(data, fitted_model=lr_model, task='regression')
+
+        >>> # Example for clustering task with K-Means
+        >>> predictions = predict(data, task='clustering', model='kmeans')
+
+        >>> # Example for dimensionality reduction with PCA
+        >>> transformed_data = predict(data, task='dimensionality_reduction', model='pca')
     """
-    X_train, X_test, y_train, y_test, df, target_column , numerical_columns, categorical_columns = data
+    X_train, X_test, y_train, y_test, df, target_column, numerical_columns, categorical_columns = data
 
-    # Use fitted model if provided, otherwise retrieve from MODELS
     clf = fitted_model if fitted_model else MODELS.get(model)
 
     if clf:
-        if task in ['classification', 'regression']:
-            predictions = clf.predict(X_test)
-            return predictions
-        elif task == 'clustering':
-            if hasattr(clf, 'predict'):
-                predictions = clf.predict(X_test)
-            elif hasattr(clf, 'labels_'):
-                predictions = clf.fit_predict(X_test)
-            else:
-                raise AttributeError("Clustering model does not have a predict method.")
-            return predictions
-        elif task == 'association':
-            raise ValueError("Association rule learning does not support predictions.")
+        if task in ['classification', 'regression', 'clustering']:
+            return clf.predict(X_test)
         elif task == 'dimensionality_reduction':
-            X_reduced = clf.transform(X_test)
-            return X_reduced
+            return clf.transform(X_test)
     else:
-        raise ValueError(f"Model {model} is not trained yet.")
+        raise ValueError(f"The {model} model has not been trained yet.")
 
-# ---- EVALUATE FUNCTION ----
 def evaluate(data, predictions=None, task='classification', model='rf'):
     """
-    Evaluates the model's performance on the provided data.
+    Evaluates the performance of a machine learning model on the provided data.
+
+    This function assesses the performance of a trained model by comparing its predictions
+    against the true labels or by evaluating the quality of dimensionality reduction or clustering.
+    It supports various machine learning tasks including classification, regression, clustering,
+    and dimensionality reduction. If predictions are not provided, the function will generate
+    them using the specified or default model.
 
     Args:
-        data (tuple): A tuple of (X_test, y_test) containing the test data and true labels.
-        predictions (array-like, optional): Predictions from the model. If not provided, they will be calculated internally. Defaults to None.
-        task (str, optional): The type of task ('classification', 'regression'). Defaults to 'classification'.
-        model (str, optional): The model used for evaluation (e.g., 'rf' for Random Forest). Defaults to 'rf'.
+        data (tuple): A tuple containing the following elements in order:
+            - X_train (pd.DataFrame): Training feature set.
+            - X_test (pd.DataFrame): Testing feature set.
+            - y_train (pd.Series): Training labels.
+            - y_test (pd.Series): Testing labels.
+            - df (pd.DataFrame): The original dataframe.
+            - target_column (str): The name of the target column.
+            - numerical_columns (list): List of numerical feature column names.
+            - categorical_columns (list): List of categorical feature column names.
+        predictions (np.ndarray or pd.DataFrame, optional): The predictions made by the model.
+            If not provided, predictions will be generated using the `predict` function.
+        task (str, optional): The machine learning task to evaluate. 
+            Defaults to 'classification'.
+            Supported tasks:
+            - 'classification'
+            - 'regression'
+            - 'clustering'
+            - 'dimensionality_reduction'
+        model (str, optional): The type of model to evaluate.
+            Defaults to 'rf' (Random Forest).
+            Supported models depend on the specified task.
 
     Returns:
-        dict: A dictionary containing evaluation metrics such as accuracy, precision, recall, etc.
+        dict or float or pd.DataFrame: The evaluation metrics.
+            - For 'classification' and 'regression' tasks, returns a dictionary of evaluation metrics.
+            - For 'clustering', returns a float representing the clustering score.
+            - For 'dimensionality_reduction', returns a DataFrame with evaluation scores.
 
-    Usage:
-        >>> results = tr.evaluate(data=data, predictions=predictions, task='classification')
-        >>> print(results)
+    Raises:
+        ValueError: 
+            - If an unsupported task type is provided.
+            - If evaluation metrics for the specified task are not defined.
+
+    Examples:
+        >>> # Example for evaluating a classification model
+        >>> scores = evaluate(data, task='classification', model='rf')
+        >>> print(scores)
+        {'accuracy': 0.95, 'precision': 0.93, 'recall': 0.94}
+
+        >>> # Example for evaluating a regression model
+        >>> scores = evaluate(data, task='regression', model='linear')
+        >>> print(scores)
+        {'mean_squared_error': 10.5, 'r2_score': 0.89}
+
+        >>> # Example for evaluating a clustering model
+        >>> scores = evaluate(data, task='clustering', model='kmeans')
+        >>> print(scores)
+        0.75
+
+        >>> # Example for evaluating dimensionality reduction with PCA
+        >>> scores = evaluate(data, task='dimensionality_reduction', model='pca')
+        >>> print(scores)
+           explained_variance_ratio
+        0                       0.8
+        1                       0.15
     """
+    X_train, X_test, y_train, y_test, df, target_column, numerical_columns, categorical_columns = data
 
-    X_train, X_test, y_train, y_test, df, target_column , numerical_columns, categorical_columns = data
-
-    # Explicitly check if predictions is None
     if predictions is None:
         predictions = predict(data, task=task, model=model)
 
+    evaluate_func = EVALUATE_FUNCTIONS.get(task)
+    if evaluate_func:
+        if task == 'dimensionality_reduction':
+            X_reduced = predictions
+            scores = evaluate_func(X_test, X_reduced)
+        elif task == 'clustering':
+            scores = evaluate_func(X_test, predictions)
+        else:
+            scores = evaluate_func(y_test, predictions)
+        return scores
+    else:
+        raise ValueError(f"Unsupported task type for evaluation: {task}")
+
+def optimize_model(X, y, model_class, param_grid, cv=5, method='grid_search', task='classification'):
+    """
+    Optimizes model hyperparameters using GridSearchCV or Optuna.
+
+    This function performs hyperparameter optimization for a given machine learning model
+    using either GridSearchCV or Bayesian optimization with Optuna. It supports both
+    classification and regression tasks. The optimized model, along with the best parameters
+    and score, is returned for further use.
+
+    Args:
+        X (pd.DataFrame or np.ndarray): Training feature set.
+        y (pd.Series or np.ndarray): Target variable.
+        model_class (class): The machine learning model class (e.g., `RandomForestClassifier`).
+        param_grid (dict): Hyperparameter grid for optimization.
+            - Keys are parameter names.
+            - Values are lists or tuples specifying the parameter range.
+        cv (int, optional): Number of cross-validation folds. Defaults to 5.
+        method (str, optional): Optimization method.
+            - 'grid_search' for GridSearchCV.
+            - 'bayesian' for Bayesian optimization using Optuna.
+            Defaults to 'grid_search'.
+        task (str, optional): Machine learning task.
+            - 'classification' for classification tasks.
+            - 'regression' for regression tasks.
+            Defaults to 'classification'.
+
+    Returns:
+        tuple:
+            - best_estimator (object): The model instance with the best found parameters.
+            - best_params (dict): The best hyperparameters found during optimization.
+            - best_score (float): The best cross-validation score achieved.
+
+    Raises:
+        ValueError:
+            - If an unsupported optimization method is provided.
+            - If an unsupported task type is specified.
+
+    Examples:
+        >>> from sklearn.ensemble import RandomForestClassifier
+        >>> param_grid = {
+        ...     'n_estimators': [100, 200],
+        ...     'max_depth': [None, 10, 20],
+        ...     'min_samples_split': [2, 5]
+        ... }
+        >>> best_model, best_params, best_score = optimize_model(
+        ...     X_train, y_train, RandomForestClassifier, param_grid,
+        ...     cv=5, method='grid_search', task='classification'
+        ... )
+        >>> print(best_params)
+        {'n_estimators': 200, 'max_depth': 20, 'min_samples_split': 2}
+
+        >>> import optuna
+        >>> from sklearn.linear_model import Ridge
+        >>> param_grid = {
+        ...     'alpha': (0.1, 10.0),
+        ...     'fit_intercept': [True, False]
+        ... }
+        >>> best_model, best_params, best_score = optimize_model(
+        ...     X_train, y_train, Ridge, param_grid,
+        ...     cv=5, method='bayesian', task='regression'
+        ... )
+        >>> print(best_params)
+        {'alpha': 5.3, 'fit_intercept': True}
+    """
+    if method == 'grid_search':
+        grid_search = GridSearchCV(model_class(), param_grid, cv=cv, n_jobs=-1)
+        grid_search.fit(X, y)
+        return grid_search.best_estimator_, grid_search.best_params_, grid_search.best_score_
+
+    elif method == 'bayesian':
+        # Ensure Optuna is installed
+        try:
+            import optuna
+        except ImportError:
+            raise ImportError("Optuna is not installed. Please install it using 'pip install optuna'.")
+
+        from sklearn.model_selection import cross_val_score
+
+        def objective(trial):
+            params = {}
+            for param, values in param_grid.items():
+                if isinstance(values, list):
+                    params[param] = trial.suggest_categorical(param, values)
+                elif isinstance(values, tuple):
+                    if all(isinstance(x, float) for x in values):
+                        params[param] = trial.suggest_float(param, values[0], values[1])
+                    else:
+                        params[param] = trial.suggest_int(param, values[0], values[1])
+                else:
+                    params[param] = values  # Fixed parameters
+
+            model = model_class(**params)
+            if task == 'classification':
+                score = cross_val_score(model, X, y, cv=cv, scoring='accuracy').mean()
+            elif task == 'regression':
+                score = cross_val_score(model, X, y, cv=cv, scoring='neg_mean_squared_error').mean()
+            else:
+                raise ValueError(f"Unsupported task type: {task}")
+            return score
+
+        direction = 'maximize' if task == 'classification' else 'minimize'
+        study = optuna.create_study(direction=direction)
+        study.optimize(objective, n_trials=50)  # Adjust the number of trials as needed
+
+        best_params = study.best_params
+        best_score = study.best_value
+        best_estimator = model_class(**best_params).fit(X, y)
+
+        return best_estimator, best_params, best_score
+
+    else:
+        raise ValueError("Unsupported optimization method. Use 'grid_search' or 'bayesian'.")
+
+def auto_train(data, task='classification', n_threads=1, optimize_models=False, optimization_method='grid_search'):
+    """
+    Automatically trains multiple machine learning models and selects the best one based on evaluation metrics.
+    
+    If `optimize_models` is set to True, the function performs hyperparameter optimization using GridSearchCV
+    or Bayesian optimization with Optuna. The optimization method can be specified via the `optimization_method` parameter.
+    
+    The function supports various tasks including classification, regression, clustering, and dimensionality reduction.
+    It trains each model, evaluates its performance, and identifies the best-performing model. Results are saved to a 
+    YAML file and displayed in a formatted table.
+    
+    Args:
+        data (tuple): A tuple containing the following elements in order:
+            - X_train (pd.DataFrame or np.ndarray): Training feature set.
+            - X_test (pd.DataFrame or np.ndarray): Testing feature set.
+            - y_train (pd.Series or np.ndarray): Training labels.
+            - y_test (pd.Series or np.ndarray): Testing labels.
+            - df (pd.DataFrame): The original dataframe.
+            - target_column (str): The name of the target column.
+            - numerical_columns (list): List of numerical feature column names.
+            - categorical_columns (list): List of categorical feature column names.
+        task (str, optional): The machine learning task to perform.
+            Defaults to 'classification'.
+            Supported tasks:
+                - 'classification'
+                - 'regression'
+                - 'clustering'
+                - 'dimensionality_reduction'
+        n_threads (int, optional): The number of parallel threads to use for training.
+            Defaults to 1.
+        optimize_models (bool, optional): Whether to perform hyperparameter optimization.
+            If True, uses the specified `optimization_method` to optimize model hyperparameters.
+            Defaults to False.
+        optimization_method (str, optional): The method to use for hyperparameter optimization.
+            - 'grid_search' for GridSearchCV.
+            - 'bayesian' for Bayesian optimization using Optuna.
+            Defaults to 'grid_search'.
+    
+    Returns:
+        object or None: The best trained machine learning model based on evaluation metrics.
+            Returns `None` if no model is successfully trained.
+    
+    Raises:
+        ValueError:
+            - If an unsupported task type is provided.
+            - If an unsupported optimization method is specified.
+        ImportError:
+            - If Optuna is not installed when `optimization_method` is set to 'bayesian'.
+    
+    Examples:
+        >>> # Example for automatic training without hyperparameter optimization
+        >>> best_model = auto_train(
+        ...     data,
+        ...     task='classification',
+        ...     n_threads=4,
+        ...     optimize_models=False,
+        ...     optimization_method='grid_search'
+        ... )
+        >>> print(best_model)
+        RandomForestClassifier(n_estimators=100, random_state=42)
+    
+        >>> # Example for automatic training with GridSearchCV hyperparameter optimization
+        >>> best_model = auto_train(
+        ...     data,
+        ...     task='regression',
+        ...     n_threads=2,
+        ...     optimize_models=True,
+        ...     optimization_method='grid_search'
+        ... )
+        >>> print(best_model)
+        Ridge(alpha=5.3, fit_intercept=True)
+    
+        >>> # Example for automatic training with Bayesian optimization using Optuna
+        >>> best_model = auto_train(
+        ...     data,
+        ...     task='regression',
+        ...     n_threads=3,
+        ...     optimize_models=True,
+        ...     optimization_method='bayesian'
+        ... )
+        >>> print(best_model)
+        Ridge(alpha=5.3, fit_intercept=True)
+    """
+    def train_and_evaluate(model_name):
+        # Notify that model training has started
+        console.print(f"[bold blue]Model '{model_name}' training started.[/bold blue]")
+
+        start_time = time.time()
+        X_train, X_test, y_train, y_test, df, target_column, numerical_columns, categorical_columns = data
+
+        try:
+            if task == 'classification':
+                model_class = CLASSIFICATION_MODELS[model_name]
+            elif task == 'regression':
+                model_class = REGRESSION_MODELS[model_name]
+            elif task == 'clustering':
+                model_class = CLUSTERING_MODELS[model_name]
+            elif task == 'dimensionality_reduction':
+                model_class = DIMENSIONALITY_REDUCTION_MODELS[model_name]
+            else:
+                raise ValueError(f"Unsupported task type: {task}")
+
+            if optimize_models and model_name in PARAM_GRIDS:
+                param_grid = PARAM_GRIDS[model_name]
+                model, best_params, best_score = optimize_model(
+                    X_train, y_train, model_class, param_grid,
+                    method=optimization_method, task=task
+                )
+            else:
+                # Add verbosity parameters if not optimizing
+                verbosity_params = VERBOSITY_PARAMS.get(model_name, {})
+                model = train(data, task=task, model=model_name, **verbosity_params)
+                best_params = model.get_params()
+                best_score = None
+
+            predictions = predict(data, fitted_model=model, task=task)
+            if task in ['classification', 'regression']:
+                scores = evaluate(data, predictions, task=task, model=model_name)
+                # Main score for comparison
+                if task == 'classification':
+                    main_score = scores['accuracy']
+                elif task == 'regression':
+                    main_score = -scores['mean_squared_error']  # Lower MSE is better
+            elif task == 'clustering':
+                scores = evaluate(data, predictions, task=task, model=model_name)
+                main_score = scores['silhouette_score']
+            elif task == 'dimensionality_reduction':
+                scores = evaluate(data, predictions, task=task, model=model_name)
+                main_score = -scores['reconstruction_error']  # Lower error is better
+            end_time = time.time()
+
+            # Notify that model training has completed
+            console.print(f"[bold green]Model '{model_name}' training completed.[/bold green]")
+
+            return {
+                'model': model_name,
+                'score': main_score,
+                'detailed_scores': scores,
+                'best_score': best_score,
+                'training_time': end_time - start_time,
+                'parameters': best_params
+            }
+        except Exception as e:
+            # Notify in case of an error
+            console.print(f"[bold red]An error occurred while training model '{model_name}': {e}[/bold red]")
+            return {
+                'model': model_name,
+                'score': None,
+                'detailed_scores': {},
+                'best_score': None,
+                'training_time': time.time() - start_time,
+                'parameters': {}
+            }
+
     if task == 'classification':
-        acc = accuracy_score(y_test, predictions)
-        cm = confusion_matrix(y_test, predictions)
-        report = classification_report(y_test, predictions)
-        print(f"Accuracy: {acc}")
-        print("Confusion Matrix:")
-        print(cm)
-        print("Classification Report:")
-        print(report)
-
+        models_to_train = [m for m in CLASSIFICATION_MODELS.keys() if CLASSIFICATION_MODELS[m] is not None]
     elif task == 'regression':
-        mse = mean_squared_error(y_test, predictions)
-        print(f"Mean Squared Error: {mse}")
-
+        models_to_train = [m for m in REGRESSION_MODELS.keys() if REGRESSION_MODELS[m] is not None]
     elif task == 'clustering':
-        print("Clustering completed. Use cluster labels for analysis.")
-        # Optionally, you can add more evaluation metrics like silhouette score
-
-    elif task == 'association':
-        print("Association Rule Learning: No evaluation metrics available.")
-
+        models_to_train = list(CLUSTERING_MODELS.keys())
     elif task == 'dimensionality_reduction':
-        print("Dimensionality Reduction completed. The reduced dataset is returned.")
+        models_to_train = list(DIMENSIONALITY_REDUCTION_MODELS.keys())
+    else:
+        raise ValueError(f"Unsupported task type: {task}")
+
+    total_models = len(models_to_train)
+    console.print(f"[bold green]Starting training of {total_models} models...[/bold green]")
+
+    results = []
+    with Progress(
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            "[progress.percentage]{task.percentage:>3.1f}%",
+            TimeRemainingColumn(),
+            console=console
+    ) as progress:
+        task_progress = progress.add_task("[cyan]Training models...", total=total_models)
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=n_threads) as executor:
+            future_to_model = {executor.submit(train_and_evaluate, model_name): model_name for model_name in models_to_train}
+            for future in concurrent.futures.as_completed(future_to_model):
+                result = future.result()
+                results.append(result)
+                progress.advance(task_progress)
+
+    # Save results to a YAML file
+    try:
+        with open('model_results.yaml', 'w') as file:
+            yaml.dump(results, file)
+    except Exception as e:
+        console.print(f"[bold red]An error occurred while saving results to YAML: {e}[/bold red]")
+
+    # Determine the best model
+    # Exclude models that encountered errors (score is None)
+    valid_results = [res for res in results if res['score'] is not None]
+    if valid_results:
+        best_model_info = max(valid_results, key=lambda x: x['score'])
+    else:
+        best_model_info = None
+
+    # Display results in a rich table
+    table = Table(title="Model Training Results", box=box.MINIMAL_DOUBLE_HEAD)
+    table.add_column("Model", style="cyan", no_wrap=True)
+    table.add_column("Score", style="magenta")
+    table.add_column("Training Time (s)", style="green")
+    table.add_column("Best CV Score", style="yellow")
+    table.add_column("Parameters", style="white")
+
+    for res in results:
+        model_name = res['model']
+        score = f"{res['score']:.4f}" if res['score'] is not None else "Error"
+        training_time = f"{res['training_time']:.2f}"
+        best_score = f"{res['best_score']:.4f}" if res['best_score'] is not None else "N/A"
+        parameters = ', '.join([f"{k}={v}" for k, v in res['parameters'].items()]) if res['parameters'] else "N/A"
+
+        if res == best_model_info:
+            table.add_row(
+                f"[bold green]{model_name}[/bold green]",
+                f"[bold green]{score}[/bold green]",
+                f"[bold green]{training_time}[/bold green]",
+                f"[bold green]{best_score}[/bold green]",
+                f"[bold green]{parameters}[/bold green]"
+            )
+        else:
+            table.add_row(model_name, score, training_time, best_score, parameters)
+
+    console.print(table)
+
+    if best_model_info:
+        console.print(f"[bold underline green]Best Model: {best_model_info['model']}[/bold underline green]")
+        console.print(f"Score: [bold]{best_model_info['score']:.4f}[/bold]")
+        if best_model_info['best_score'] is not None:
+            console.print(f"Best CV Score: [bold]{best_model_info['best_score']:.4f}[/bold]")
+        console.print(f"Training Time: [bold]{best_model_info['training_time']:.2f} seconds[/bold]")
+        console.print(f"Parameters: [bold]{best_model_info['parameters']}[/bold]\n")
+    else:
+        console.print("[bold red]No models were successfully trained.[/bold red]")
+
+    return MODELS.get(best_model_info['model']) if best_model_info else None
+
+
+
+
+# ---- Kullanım Örneği ----
+if __name__ == "__main__":
+
+
+    import data_processing as dp
+
+    data= dp.prepare_data('data.csv')
+
+    # Hiperparametre optimizasyonu olmadan auto_train çalıştır
+    best_model = auto_train(data, task='classification', n_threads=3, optimize_models=True , optimization_method='bayesian')
 
 
 

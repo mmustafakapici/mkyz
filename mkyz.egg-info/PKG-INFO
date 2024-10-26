@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: mkyz
-Version: 0.1
+Version: 0.1.1
 Summary: MKYZ is a Python library for classification, regression, clustering, association rule learning, dimensionality reduction, bagging, boosting, and stacking.
 Home-page: https://github.com/mmustafakapici/mkyz
 Author: Mustafa Kapıcı
@@ -22,6 +22,7 @@ Requires-Dist: statsmodels
 Requires-Dist: xgboost
 Requires-Dist: lightgbm
 Requires-Dist: catboost
+Requires-Dist: rich
 
 # mkyz
 

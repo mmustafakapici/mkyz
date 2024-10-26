@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='mkyz',  # Kütüphane adınız
-    version='0.1',
+    version='0.1.1',
     packages=find_packages(),
     install_requires=[
         'pandas',  # Veri işlemleri için
@@ -16,6 +16,7 @@ setup(
         'xgboost',  # Gradient Boosting için
         'lightgbm',  # Gradient Boosting için
         'catboost',  # Gradient Boosting için
+        'rich',  # Gelişmiş konsol çıktıları için
     ],
     description='MKYZ is a Python library for classification, regression, clustering, association rule learning, dimensionality reduction, bagging, boosting, and stacking.',
     long_description=open('README.md').read(),

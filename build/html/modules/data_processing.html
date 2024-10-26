@@ -38,26 +38,36 @@
 <p>### Functions</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="mkyz.data_processing.prepare_data">
-<span class="sig-prename descclassname"><span class="pre">mkyz.data_processing.</span></span><span class="sig-name descname"><span class="pre">prepare_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numerical_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categorical_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binary_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_cardinality_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mkyz.data_processing.prepare_data" title="Link to this definition">¶</a></dt>
-<dd><p>Prepares the dataset for training by handling missing values, encoding categorical variables, and splitting the data.</p>
+<span class="sig-prename descclassname"><span class="pre">mkyz.data_processing.</span></span><span class="sig-name descname"><span class="pre">prepare_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numerical_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categorical_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binary_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_cardinality_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'remove'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categorical_transform_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'onehot'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mkyz.data_processing.prepare_data" title="Link to this definition">¶</a></dt>
+<dd><p>Veriyi hazırlamak için eksik değerlerin doldurulması, aykırı değerlerin işlenmesi,
+kategorik değişkenlerin dönüştürülmesi ve veri setinin bölünmesi işlemlerini gerçekleştirir.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>str</em><em> or </em><em>pandas.DataFrame</em>) – The input dataset, either as a file path (e.g., ‘data.csv’) or a pandas DataFrame.</p></li>
-<li><p><strong>target_column</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the target column. If not provided, the last column is assumed as the target. Defaults to None.</p></li>
-<li><p><strong>task</strong> (<em>str</em><em>, </em><em>optional</em>) – The type of task (‘classification’, ‘regression’). Defaults to ‘classification’.</p></li>
+<li><p><strong>filepath</strong> (<em>str</em>) – Veri setinin CSV dosya yolu.</p></li>
+<li><p><strong>target_column</strong> (<em>str</em><em>, </em><em>optional</em>) – Hedef sütun adı. Sağlanmazsa, son sütun kullanılır. Defaults to None.</p></li>
+<li><p><strong>numerical_columns</strong> (<em>list</em><em>, </em><em>optional</em>) – Sayısal sütunlar. Defaults to None.</p></li>
+<li><p><strong>categorical_columns</strong> (<em>list</em><em>, </em><em>optional</em>) – Kategorik sütunlar. Defaults to None.</p></li>
+<li><p><strong>test_size</strong> (<em>float</em><em>, </em><em>optional</em>) – Test veri oranı. Defaults to 0.2.</p></li>
+<li><p><strong>random_state</strong> (<em>int</em><em>, </em><em>optional</em>) – Rastgelelik kontrolü için seed. Defaults to 42.</p></li>
+<li><p><strong>binary_threshold</strong> (<em>int</em><em>, </em><em>optional</em>) – Sütunun binary olarak kabul edilebilmesi için maksimum benzersiz değer sayısı. Defaults to 2.</p></li>
+<li><p><strong>low_cardinality_threshold</strong> (<em>int</em><em>, </em><em>optional</em>) – Düşük kardinaliteli sütunlar için maksimum benzersiz değer sayısı. Defaults to 10.</p></li>
+<li><p><strong>drop_columns</strong> (<em>list</em><em>, </em><em>optional</em>) – Veri setinden çıkarılacak sütunlar. Defaults to None.</p></li>
+<li><p><strong>outlier_strategy</strong> (<em>str</em><em>, </em><em>optional</em>) – Aykırı değer işleme stratejisi (‘remove’, ‘cap’). Defaults to ‘remove’.</p></li>
+<li><p><strong>categorical_transform_method</strong> (<em>str</em><em>, </em><em>optional</em>) – Kategorik dönüşüm yöntemi (‘onehot’, ‘frequency’, ‘target’). Defaults to ‘onehot’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A tuple of (X, y) where X is the feature matrix and y is the target vector.</p>
+<dd class="field-even"><p>(X_train, X_test, y_train, y_test, df, target_column, numerical_columns, categorical_columns)</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>tuple</p>
 </dd>
 </dl>
 <dl>
-<dt>Usage:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">mkyz</span> <span class="kn">import</span> <span class="n">data_processing</span> <span class="k">as</span> <span class="n">dp</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">prepare_data</span><span class="p">(</span><span class="s1">&#39;winequality-red.csv&#39;</span><span class="p">,</span> <span class="n">target_column</span><span class="o">=</span><span class="s1">&#39;quality&#39;</span><span class="p">)</span>
+<dt>Usage:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">prepare_data</span><span class="p">(</span>
+<span class="go">        &#39;data.csv&#39;, target_column=&#39;target&#39;, drop_columns=[&#39;ID&#39;],</span>
+<span class="go">        outlier_strategy=&#39;cap&#39;, categorical_transform_method=&#39;frequency&#39;)</span>
 </pre></div>
 </div>
 </dd>

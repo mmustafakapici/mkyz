@@ -1,0 +1,4 @@
+clear
+pip uninstall mkyz -y      
+python setup.py sdist bdist_wheel
+pip install .
