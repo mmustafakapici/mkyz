@@ -7,9 +7,9 @@ The **mkyz** library contains several key modules that work together to process 
    :maxdepth: 2
    :caption: Modules:
 
-   modules/data_processing
-   modules/training
-   modules/visualization
+   modules_data_processing
+   modules_training
+   modules_visualization
 
 Each module has specific functionalities:
 
