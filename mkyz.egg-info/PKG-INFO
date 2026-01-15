@@ -1,16 +1,14 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: mkyz
-Version: 0.1.1
-Summary: MKYZ is a Python library for classification, regression, clustering, association rule learning, dimensionality reduction, bagging, boosting, and stacking.
+Version: 0.2.1
+Summary: MKYZ is a Python library for ML and data science tasks.
 Home-page: https://github.com/mmustafakapici/mkyz
 Author: Mustafa Kapıcı
 Author-email: m.mustafakapici@gmail.com
 Classifier: Programming Language :: Python :: 3
-Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
 Requires-Python: >=3.6
 Description-Content-Type: text/markdown
-License-File: LICENSE
 Requires-Dist: pandas
 Requires-Dist: scikit-learn
 Requires-Dist: seaborn
@@ -23,22 +21,328 @@ Requires-Dist: xgboost
 Requires-Dist: lightgbm
 Requires-Dist: catboost
 Requires-Dist: rich
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
 
-# mkyz
+# MKYZ - Machine Learning Library
 
-**mkyz** is a machine learning library designed to simplify data processing, model training, evaluation, and visualization tasks.
+<p align="center">
+  <img src="https://img.shields.io/badge/version-0.2.0-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/python-3.6+-green.svg" alt="Python">
+  <img src="https://img.shields.io/badge/license-MIT-orange.svg" alt="License">
+</p>
 
-## Features
+**MKYZ** is a comprehensive Python machine learning library designed to simplify data processing, model training, evaluation, and visualization tasks. Built on top of scikit-learn, it provides a unified API for common ML workflows.
 
-- **Data Preparation**: Automatically handle missing values, encode categorical variables, and split data into features and target labels.
-- **Model Training**: Easily train models for classification, regression, and clustering tasks.
-- **Evaluation**: Get detailed evaluation metrics for your models, such as accuracy, precision, and recall.
-- **Visualization**: Visualize data and model results with built-in plotting functions.
+## ✨ Features
 
-## Installation
+### Core Capabilities
+- **🔄 Data Preparation** - Automatic handling of missing values, outliers, and categorical encoding
+- **🎯 Model Training** - Support for 20+ classification, regression, and clustering algorithms
+- **📊 AutoML** - Automatic model selection and hyperparameter optimization
+- **📈 Evaluation** - Comprehensive metrics with 10 cross-validation strategies
+- **🎨 Visualization** - 40+ built-in plotting functions for EDA and model results
 
-You can install **mkyz** via `pip`:
+### New in v0.2.0
+- **💾 Model Persistence** - Save and load models with metadata
+- **🔧 Feature Engineering** - Polynomial, datetime, lag, and rolling features
+- **📝 Auto Reports** - Generate HTML reports with one line of code
+- **⚡ Parallel Processing** - Built-in utilities for faster training
+- **🛡️ Robust Error Handling** - Custom exceptions for better debugging
+
+## 📦 Installation
 
 ```bash
 pip install mkyz
 ```
+
+### From Source
+```bash
+git clone https://github.com/mmustafakapici/mkyz.git
+cd mkyz
+pip install -e .
+```
+
+### Dependencies
+```
+pandas, scikit-learn, numpy, matplotlib, seaborn, 
+plotly, xgboost, lightgbm, catboost, rich, mlxtend
+```
+
+## 🚀 Quick Start
+
+### Basic Usage (Original API)
+
+```python
+import mkyz
+
+# 1. Prepare data
+data = mkyz.prepare_data('dataset.csv', target_column='price')
+
+# 2. Train model
+model = mkyz.train(data, task='classification', model='rf')
+
+# 3. Make predictions
+predictions = mkyz.predict(data, model)
+
+# 4. Evaluate
+scores = mkyz.evaluate(data, predictions)
+print(scores)
+
+# 5. Visualize
+mkyz.visualize(data)
+```
+
+### AutoML - Find the Best Model
+
+```python
+import mkyz
+
+data = mkyz.prepare_data('dataset.csv', target_column='target')
+
+# Automatically train and compare all models
+best_model = mkyz.auto_train(
+    data, 
+    task='classification',
+    optimize_models=True,
+    optimization_method='bayesian'
+)
+```
+
+### New Modular API (v0.2.0)
+
+```python
+import mkyz
+
+# Configure globally
+mkyz.set_config(random_state=42, n_jobs=-1, verbose=1)
+
+# Load data flexibly
+df = mkyz.load_data('data.csv')  # Also supports Excel, JSON, Parquet
+
+# Validate dataset
+validation = mkyz.validate_dataset(df, target_column='target')
+if not validation['is_valid']:
+    print(validation['issues'])
+
+# Feature Engineering
+fe = mkyz.FeatureEngineer()
+df = fe.create_datetime_features(df, 'date_column')
+df = fe.create_polynomial_features(df, ['age', 'income'], degree=2)
+
+# Select best features
+selected = mkyz.select_features(X, y, k=10, method='mutual_info')
+
+# Advanced Cross-Validation
+results = mkyz.cross_validate(
+    model, X, y,
+    cv=mkyz.CVStrategy.STRATIFIED,
+    n_splits=5,
+    return_train_score=True
+)
+print(f"Mean accuracy: {results['mean_test_score']:.4f}")
+
+# Save trained model
+mkyz.save_model(model, 'models/my_model', metadata={'version': '1.0'})
+
+# Load model later
+model = mkyz.load_model('models/my_model.joblib')
+
+# Generate comprehensive report
+report = mkyz.ModelReport(model, X_test, y_test, task='classification')
+report.generate()
+report.export_html('reports/model_report.html')
+print(report.summary())
+```
+
+## 📚 Documentation
+
+### Modules Overview
+
+| Module | Description |
+|--------|-------------|
+| `mkyz.core` | Configuration, exceptions, base classes |
+| `mkyz.data` | Data loading, preprocessing, feature engineering |
+| `mkyz.evaluation` | Metrics, cross-validation, reporting |
+| `mkyz.persistence` | Model saving and loading |
+| `mkyz.utils` | Logging and parallel processing utilities |
+
+### Detailed Guides
+
+- [Installation Guide](docs/installation.md)
+- [Quick Start Tutorial](docs/quickstart.md)
+- [Data Preparation Guide](docs/guides/data_preparation.md)
+- [Feature Engineering Guide](docs/guides/feature_engineering.md)
+- [Model Training Guide](docs/guides/model_training.md)
+- [API Reference](docs/api/index.md)
+
+## 🔧 Supported Models
+
+### Classification
+| Model | Key | Description |
+|-------|-----|-------------|
+| Random Forest | `rf` | Ensemble of decision trees |
+| Logistic Regression | `lr` | Linear classification |
+| SVM | `svm` | Support Vector Machine |
+| KNN | `knn` | K-Nearest Neighbors |
+| Decision Tree | `dt` | Single decision tree |
+| Naive Bayes | `nb` | Probabilistic classifier |
+| Gradient Boosting | `gb` | Boosted trees |
+| XGBoost | `xgb` | Extreme Gradient Boosting |
+| LightGBM | `lgbm` | Light Gradient Boosting |
+| CatBoost | `catboost` | Categorical Boosting |
+
+### Regression
+| Model | Key | Description |
+|-------|-----|-------------|
+| Random Forest | `rf` | Ensemble regressor |
+| Linear Regression | `lr` | OLS regression |
+| SVR | `svm` | Support Vector Regression |
+| KNN | `knn` | K-Nearest Neighbors |
+| Decision Tree | `dt` | Single decision tree |
+
+### Clustering
+| Model | Key | Description |
+|-------|-----|-------------|
+| K-Means | `kmeans` | Centroid-based |
+| DBSCAN | `dbscan` | Density-based |
+| Agglomerative | `agglomerative` | Hierarchical |
+| GMM | `gmm` | Gaussian Mixture |
+| Mean Shift | `mean_shift` | Mode-seeking |
+
+### Dimensionality Reduction
+| Model | Key | Description |
+|-------|-----|-------------|
+| PCA | `pca` | Principal Component Analysis |
+| SVD | `svd` | Truncated SVD |
+| NMF | `nmf` | Non-negative Matrix Factorization |
+
+## 📊 Cross-Validation Strategies
+
+```python
+from mkyz import cross_validate, CVStrategy
+
+# Available strategies
+strategies = [
+    CVStrategy.KFOLD,              # Standard K-Fold
+    CVStrategy.STRATIFIED,         # Stratified K-Fold (default)
+    CVStrategy.TIME_SERIES,        # Time Series Split
+    CVStrategy.GROUP,              # Group K-Fold
+    CVStrategy.REPEATED,           # Repeated K-Fold
+    CVStrategy.REPEATED_STRATIFIED,# Repeated Stratified
+    CVStrategy.LEAVE_ONE_OUT,      # Leave-One-Out
+    CVStrategy.SHUFFLE,            # Shuffle Split
+    CVStrategy.STRATIFIED_SHUFFLE  # Stratified Shuffle
+]
+
+# Usage
+results = cross_validate(model, X, y, cv=CVStrategy.TIME_SERIES, n_splits=5)
+```
+
+## 🔧 Configuration
+
+```python
+import mkyz
+
+# View current config
+print(mkyz.get_config().to_dict())
+
+# Update config
+mkyz.set_config(
+    random_state=42,
+    n_jobs=-1,
+    cv_folds=5,
+    verbose=1,
+    dark_mode=True
+)
+```
+
+### Available Settings
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `random_state` | 42 | Random seed for reproducibility |
+| `n_jobs` | -1 | Parallel jobs (-1 = all CPUs) |
+| `cv_folds` | 5 | Default CV folds |
+| `test_size` | 0.2 | Train/test split ratio |
+| `verbose` | 1 | Verbosity level |
+| `optimization_method` | 'grid_search' | 'grid_search' or 'bayesian' |
+| `missing_value_strategy` | 'mean' | 'mean', 'median', 'mode', 'drop' |
+| `outlier_strategy` | 'remove' | 'remove', 'cap', 'keep' |
+
+## 🛡️ Error Handling
+
+```python
+from mkyz import (
+    MKYZError,           # Base exception
+    DataValidationError, # Data issues
+    ModelNotTrainedError,# Model not fitted
+    UnsupportedTaskError,# Invalid task type
+    PersistenceError     # Save/load failures
+)
+
+try:
+    model = mkyz.load_model('nonexistent.joblib')
+except PersistenceError as e:
+    print(f"Failed to load model: {e}")
+```
+
+## 📈 Visualization
+
+```python
+import mkyz
+
+# EDA visualizations
+mkyz.visualize(data, plot_type='histogram')
+mkyz.visualize(data, plot_type='correlation')
+mkyz.visualize(data, plot_type='boxplot')
+
+# Available plot types:
+# histogram, bar, box, violin, pie, scatter, line,
+# heatmap, pair, swarm, strip, kde, ridge, density,
+# joint, regression, residual, qq, ecdf, dendrogram...
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md).
+
+```bash
+# Clone the repository
+git clone https://github.com/mmustafakapici/mkyz.git
+
+# Install development dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest tests/
+```
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👤 Author
+
+**Mustafa Kapıcı**
+- Email: m.mustafakapici@gmail.com
+- GitHub: [@mmustafakapici](https://github.com/mmustafakapici)
+
+## 🙏 Acknowledgments
+
+- Built on top of [scikit-learn](https://scikit-learn.org/)
+- Boosting models from [XGBoost](https://xgboost.ai/), [LightGBM](https://lightgbm.readthedocs.io/), [CatBoost](https://catboost.ai/)
+- Visualization powered by [Matplotlib](https://matplotlib.org/), [Seaborn](https://seaborn.pydata.org/), [Plotly](https://plotly.com/)
+
+---
+
+<p align="center">
+  Made with ❤️ in Turkey
+</p>
