@@ -69,6 +69,19 @@ def create_grids(num_plots, cols=3, per_subplot_size=(15, 15), max_plots_per_fig
 
 # 1. Histogram - Continuous data
 def histogram_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots histograms for continuous data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     continuous_cols = numerical_columns
     num_plots = len(continuous_cols)
     grids = create_grids(num_plots, cols, per_subplot_size=(5, 5), max_plots_per_fig=max_plots_per_fig)
@@ -85,6 +98,19 @@ def histogram_continuous(data, target, numerical_columns, categorical_columns, c
 
 # 2. Bar Plot - Categorical data
 def plot_bar_categorical(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots bar charts for categorical data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names (unused here).
+        categorical_columns (list): List of categorical column names.
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     categorical_cols = categorical_columns
     num_plots = len(categorical_cols)
     grids = create_grids(num_plots, cols, per_subplot_size=(5, 5), max_plots_per_fig=max_plots_per_fig)
@@ -101,6 +127,19 @@ def plot_bar_categorical(data, target, numerical_columns, categorical_columns, c
 
 # 3. Box Plot - Continuous data
 def plot_box_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots box plots for continuous data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     continuous_cols = numerical_columns
     num_plots = len(continuous_cols)
     grids = create_grids(num_plots, cols, per_subplot_size=(5, 5), max_plots_per_fig=max_plots_per_fig)
@@ -119,6 +158,19 @@ def plot_box_continuous(data, target, numerical_columns, categorical_columns, co
 
 # 5. Violin Plot - Continuous data
 def plot_violin_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots violin plots for continuous data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     continuous_cols = numerical_columns
     num_plots = len(continuous_cols)
     grids = create_grids(num_plots, cols, per_subplot_size=(5, 5), max_plots_per_fig=max_plots_per_fig)
@@ -135,6 +187,19 @@ def plot_violin_continuous(data, target, numerical_columns, categorical_columns,
 
 # 6. Pie Chart - Categorical data
 def plot_pie_categorical(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots pie charts for categorical data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column (unused for hue here, but kept for signature consistency).
+        numerical_columns (list): List of numerical column names (unused here).
+        categorical_columns (list): List of categorical column names.
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     categorical_cols = categorical_columns
     num_plots = len(categorical_cols)
     grids = create_grids(num_plots, cols, per_subplot_size=(5, 5), max_plots_per_fig=max_plots_per_fig)
@@ -152,6 +217,19 @@ def plot_pie_categorical(data, target, numerical_columns, categorical_columns, c
 
 # 7. Scatter Plot - Continuous data
 def plot_scatter_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots scatter plots for pairs of continuous data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     if len(numerical_columns) < 2:
         raise ValueError("Not enough continuous columns for scatter plot.")
 
@@ -174,6 +252,19 @@ def plot_scatter_continuous(data, target, numerical_columns, categorical_columns
 
 # 8. Line Plot - Continuous data
 def plot_line_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 10), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots line plots for continuous data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column (unused here).
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     continuous_cols = numerical_columns
     num_plots = len(continuous_cols)
     grids = create_grids(num_plots, cols, per_subplot_size=(5, 5), max_plots_per_fig=max_plots_per_fig)
@@ -189,6 +280,19 @@ def plot_line_continuous(data, target, numerical_columns, categorical_columns, c
 
 # 9. Heatmap - Correlation Matrix
 def plot_correlation_matrix(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots a correlation matrix heatmap for continuous data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Unused.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Unused (uses cubehelix).
+        max_plots_per_fig (int, optional): Unused.
+    """
     plt.figure(figsize=figsize)
     corr = data[numerical_columns].corr()
 
@@ -203,12 +307,38 @@ def plot_correlation_matrix(data, target, numerical_columns, categorical_columns
 
 # 10. Pair Plot - Continuous data
 def plot_pair_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots a pair plot for continuous data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Unused.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Unused.
+    """
     sns.pairplot(data[numerical_columns + [target]], hue=target, palette=palette)
     plt.suptitle("Pair Plot", y=1.02, color='white')
     plt.show()
 
 # 11. Swarm Plot - Categorical data
 def plot_swarm_categorical(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots swarm plots for categorical data vs the first continuous column.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names (must have at least 1).
+        categorical_columns (list): List of categorical column names.
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     categorical_cols = categorical_columns
     continuous_cols = numerical_columns
     if len(continuous_cols) == 0:
@@ -228,6 +358,19 @@ def plot_swarm_categorical(data, target, numerical_columns, categorical_columns,
 
 # 12. Strip Plot - Categorical data
 def plot_strip_categorical(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots strip plots for categorical data vs the first continuous column.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names (must have at least 1).
+        categorical_columns (list): List of categorical column names.
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     categorical_cols = categorical_columns
     continuous_cols = numerical_columns
     if len(continuous_cols) == 0:
@@ -247,6 +390,19 @@ def plot_strip_categorical(data, target, numerical_columns, categorical_columns,
 
 # 13. KDE Plot - Continuous data 
 def plot_kde_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots KDE plots for continuous data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     continuous_cols = numerical_columns
     num_plots = len(continuous_cols)
     grids = create_grids(num_plots, cols, per_subplot_size=(5, 5), max_plots_per_fig=max_plots_per_fig)
@@ -263,6 +419,19 @@ def plot_kde_continuous(data, target, numerical_columns, categorical_columns, co
 
 # 14. Ridge Plot - Continuous data
 def plot_ridge_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots ridge plots (multiple KDEs) for continuous data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     continuous_cols = numerical_columns
     if len(continuous_cols) == 0:
         raise ValueError("No continuous columns available for Ridge Plot.")
@@ -285,6 +454,19 @@ def plot_ridge_continuous(data, target, numerical_columns, categorical_columns, 
 
 # 15. Density Plot - Continuous data
 def plot_density_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots density plots for continuous data overlaid on a single figure.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Unused.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Unused.
+    """
     continuous_cols = numerical_columns
     plt.figure(figsize=figsize)
 
@@ -297,6 +479,19 @@ def plot_density_continuous(data, target, numerical_columns, categorical_columns
 
 # 16. Joint Plot - Continuous data
 def plot_joint_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots joint plots (scatter + histogram) for pairs of continuous data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     if len(numerical_columns) < 2:
         raise ValueError("Not enough continuous columns for joint plot.")
 
@@ -319,6 +514,19 @@ def plot_joint_continuous(data, target, numerical_columns, categorical_columns, 
 
 # 17. Facet Grid - Categorical data
 def plot_facet_grid_categorical(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots facet grids for categorical data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names (uses first one).
+        categorical_columns (list): List of categorical column names.
+        cols (int, optional): Unused.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Unused.
+    """
     if len(categorical_columns) == 0 or len(numerical_columns) == 0:
         raise ValueError("Insufficient categorical or continuous columns for Facet Grid.")
 
@@ -332,6 +540,19 @@ def plot_facet_grid_categorical(data, target, numerical_columns, categorical_col
 
 # 18. Regression Plot - Continuous data
 def plot_regression_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots regression plots for pairs of continuous data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column (unused here).
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     if len(numerical_columns) < 2:
         raise ValueError("Not enough continuous columns for regression plot.")
 
@@ -355,6 +576,19 @@ def plot_regression_continuous(data, target, numerical_columns, categorical_colu
 
 # 19. Dendrogram - Categorical data
 def plot_dendrogram_categorical(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots a dendrogram for categorical data clustering.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column (used for labels).
+        numerical_columns (list): List of numerical column names (unused here).
+        categorical_columns (list): List of categorical column names.
+        cols (int, optional): Unused.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Unused.
+        max_plots_per_fig (int, optional): Unused.
+    """
     categorical_cols = categorical_columns
     if len(categorical_cols) == 0:
         raise ValueError("No categorical columns for dendrogram.")
@@ -372,6 +606,19 @@ def plot_dendrogram_categorical(data, target, numerical_columns, categorical_col
 
 # 20. Donut Chart - Categorical data
 def plot_donut_categorical(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots donut charts for categorical data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names (unused here).
+        categorical_columns (list): List of categorical column names.
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     categorical_cols = categorical_columns
     num_plots = len(categorical_cols)
     grids = create_grids(num_plots, cols, per_subplot_size=(5, 5), max_plots_per_fig=max_plots_per_fig)
@@ -395,6 +642,19 @@ def plot_donut_categorical(data, target, numerical_columns, categorical_columns,
 
 # 21. Bubble Plot - Continuous data
 def plot_bubble_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots bubble plots for triplets of continuous data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     continuous_cols = numerical_columns
     if len(continuous_cols) < 3:
         raise ValueError("Need at least three continuous columns for bubble plot.")
@@ -418,6 +678,19 @@ def plot_bubble_continuous(data, target, numerical_columns, categorical_columns,
 
 # 22. Sunburst Chart - Categorical data
 def plot_sunburst_categorical(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots sunburst charts for pairs of categorical columns.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names (unused here).
+        categorical_columns (list): List of categorical column names.
+        cols (int, optional): Unused (Plotly creates separate figures).
+        figsize (tuple, optional): Unused (Plotly handles sizing).
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Unused.
+    """
     try:
         import plotly.express as px
     except ImportError:
@@ -438,6 +711,19 @@ def plot_sunburst_categorical(data, target, numerical_columns, categorical_colum
 
 # 23. Interactive 3D Scatter Plot - Continuous data using Plotly
 def plot_3d_scatter_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots interactive 3D scatter plots for triplets of continuous columns.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Unused (Plotly handles sizing).
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     continuous_cols = numerical_columns
     if len(continuous_cols) < 3:
         raise ValueError("Need at least three continuous columns for 3D scatter plot.")
@@ -485,6 +771,19 @@ def plot_3d_scatter_continuous(data, target, numerical_columns, categorical_colu
 
 # 24. Parallel Coordinates - Continuous data
 def plot_parallel_coordinates_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots parallel coordinates for continuous data relative to the target.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Unused.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Unused.
+    """
     continuous_cols = numerical_columns
     if target not in continuous_cols:
         # Assuming target is categorical or already included
@@ -496,6 +795,19 @@ def plot_parallel_coordinates_continuous(data, target, numerical_columns, catego
 
 # 25. Radar Chart - Categorical data
 def plot_radar_categorical(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots radar charts for categorical data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column (unused here).
+        numerical_columns (list): List of numerical column names (unused here).
+        categorical_columns (list): List of categorical column names.
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     import matplotlib.colors as mcolors
     from matplotlib import cm
     import numpy as np
@@ -536,6 +848,19 @@ def plot_radar_categorical(data, target, numerical_columns, categorical_columns,
 
 # 26. Waterfall Chart - Categorical data
 def plot_waterfall_categorical(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots waterfall charts for categorical data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names (unused here).
+        categorical_columns (list): List of categorical column names.
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     categorical_cols = categorical_columns
     if len(categorical_cols) == 0:
         raise ValueError("No categorical columns for Waterfall Chart.")
@@ -562,6 +887,19 @@ def plot_waterfall_categorical(data, target, numerical_columns, categorical_colu
 
 # 27. Area Plot - Continuous data
 def plot_area_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots area plots (filled KDEs) for continuous data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column (unused here).
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Unused.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Unused.
+    """
     continuous_cols = numerical_columns
     plt.figure(figsize=figsize)
 
@@ -574,6 +912,19 @@ def plot_area_continuous(data, target, numerical_columns, categorical_columns, c
 
 # 28. Step Plot - Continuous data
 def plot_step_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 10), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots step plots for continuous data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column (unused here).
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Unused.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Unused.
+    """
     continuous_cols = numerical_columns
     plt.figure(figsize=figsize)
 
@@ -586,6 +937,19 @@ def plot_step_continuous(data, target, numerical_columns, categorical_columns, c
 
 # 29. Trellis Plot - Categorical data
 def plot_trellis_categorical(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots trellis plots (facet grids) for categorical data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names.
+        cols (int, optional): Unused.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Unused.
+    """
     categorical_cols = categorical_columns
     continuous_cols = numerical_columns
     if len(categorical_cols) == 0 or len(continuous_cols) == 0:
@@ -601,6 +965,19 @@ def plot_trellis_categorical(data, target, numerical_columns, categorical_column
 
 # 30. Lollipop Chart - Categorical data
 def plot_lollipop_categorical(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots lollipop charts for categorical data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column (unused here).
+        numerical_columns (list): List of numerical column names (unused here).
+        categorical_columns (list): List of categorical column names.
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     categorical_cols = categorical_columns
     if len(categorical_cols) == 0:
         raise ValueError("No categorical columns for Lollipop Chart.")
@@ -625,6 +1002,20 @@ def plot_lollipop_categorical(data, target, numerical_columns, categorical_colum
 
 # 31. PCA Visualization - Continuous data
 def plot_pca_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 10), palette=DEFAULT_PALETTE, n_components=2, max_plots_per_fig=20):
+    """
+    Plots a 2D PCA visualization of continuous data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column (used for coloring).
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Unused.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        n_components (int, optional): Number of PCA components (default 2).
+        max_plots_per_fig (int, optional): Unused.
+    """
     # n_components neden 2 olmalı = 2D grafik oluşturmak için
     continuous_cols = numerical_columns
     if len(continuous_cols) < n_components:
@@ -643,6 +1034,20 @@ def plot_pca_continuous(data, target, numerical_columns, categorical_columns, co
 
 # 32. TSNE Visualization - Continuous data
 def plot_tsne_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 10), palette=DEFAULT_PALETTE, n_components=2, max_plots_per_fig=20):
+    """
+    Plots a t-SNE visualization of continuous data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column (used for coloring).
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Unused.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        n_components (int, optional): Number of t-SNE components (default 2).
+        max_plots_per_fig (int, optional): Unused.
+    """
     continuous_cols = numerical_columns
     if len(continuous_cols) == 0:
         raise ValueError("No continuous columns available for t-SNE.")
@@ -660,6 +1065,19 @@ def plot_tsne_continuous(data, target, numerical_columns, categorical_columns, c
 
 # 33. Mosaic Plot - Categorical data
 def plot_mosaic_categorical(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots mosaic plots for categorical data vs the target.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names (unused here).
+        categorical_columns (list): List of categorical column names.
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     try:
         from statsmodels.graphics.mosaicplot import mosaic
     except ImportError:
@@ -685,6 +1103,19 @@ def plot_mosaic_categorical(data, target, numerical_columns, categorical_columns
 
 # 34. Boxen Plot - Continuous data 
 def plot_boxen_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots boxen plots for continuous data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     continuous_cols = numerical_columns
     num_plots = len(continuous_cols)
     grids = create_grids(num_plots, cols, per_subplot_size=(5, 5), max_plots_per_fig=max_plots_per_fig)
@@ -702,6 +1133,19 @@ def plot_boxen_continuous(data, target, numerical_columns, categorical_columns, 
 
 # 35. Stacked Bar Plot - Categorical data
 def plot_stacked_bar_categorical(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots stacked bar charts for categorical data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column.
+        numerical_columns (list): List of numerical column names (unused here).
+        categorical_columns (list): List of categorical column names.
+        cols (int, optional): Unused (Creates separate figures).
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Unused.
+    """
     categorical_cols = categorical_columns
     for column in categorical_cols:
         counts = pd.crosstab(data[column], data[target])
@@ -716,6 +1160,19 @@ def plot_stacked_bar_categorical(data, target, numerical_columns, categorical_co
 
 # 36. Funnel Chart - Categorical data
 def plot_funnel_categorical(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots funnel charts for categorical data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column (unused here).
+        numerical_columns (list): List of numerical column names (unused here).
+        categorical_columns (list): List of categorical column names.
+        cols (int, optional): Unused (Plotly creates separate figures).
+        figsize (tuple, optional): Unused (Plotly handles sizing).
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Unused.
+    """
     try:
         import plotly.express as px
     except ImportError:
@@ -733,6 +1190,19 @@ def plot_funnel_categorical(data, target, numerical_columns, categorical_columns
 
 # 37. Hexbin Plot - Continuous data
 def plot_hexbin_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots hexbin plots for pairs of continuous data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column (unused here).
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Figure size.
+        palette (list, optional): Color palette (unused, uses viridis).
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     continuous_cols = numerical_columns
     if len(continuous_cols) < 2:
         raise ValueError("Need at least two continuous columns for Hexbin Plot.")
@@ -759,6 +1229,19 @@ def plot_hexbin_continuous(data, target, numerical_columns, categorical_columns,
 
 # 39. Interactive 3D Surface Plot - Continuous data using Plotly
 def plot_3d_surface_continuous(data, target, numerical_columns, categorical_columns, cols=3, figsize=(15, 15), palette=DEFAULT_PALETTE, max_plots_per_fig=20):
+    """
+    Plots interactive 3D surface plots for triplets of continuous data.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data.
+        target (str): The name of the target column (unused here).
+        numerical_columns (list): List of numerical column names.
+        categorical_columns (list): List of categorical column names (unused here).
+        cols (int, optional): Number of columns in subplot grid.
+        figsize (tuple, optional): Unused (Plotly handles sizing).
+        palette (list, optional): Color palette.
+        max_plots_per_fig (int, optional): Max plots per figure.
+    """
     continuous_cols = numerical_columns
     if len(continuous_cols) < 3:
         raise ValueError("Need at least three continuous columns for 3D surface plot.")
@@ -807,110 +1290,13 @@ def plot_3d_surface_continuous(data, target, numerical_columns, categorical_colu
 
 # 40. Additional Plots can be added here following the same pattern
 
-# General visualize function
-def visualize(
-        data,
-        graphics='kde',
-        cols=3,
-        figsize=(15, 15),
-        palette=DEFAULT_PALETTE,
-        max_plots_per_fig=20  # New parameter to limit plots per figure
-):
-    """
-    Veriyi belirtilen grafik türüne göre görselleştirir.
 
-    Args:
-        data (tuple or pandas.DataFrame): Eğer tuple ise (X_train, X_test, y_train, y_test, df, target_column, numerical_columns, categorical_columns) içermeli.
-                                         Eğer DataFrame ise, gerekli sütunların mevcut olduğundan emin olunmalı.
-        graphics (str): Oluşturulacak grafik türü (örn., 'scatter', 'bar', 'heatmap', 'corr').
-        cols (int, optional): Her subplot grid'inde olacak sütun sayısı.
-        figsize (tuple, optional): Her figürün boyutu.
-        palette (list, optional): Plotlar için renk paleti.
-        max_plots_per_fig (int, optional): Her figürde maksimum subplot sayısı.
-
-    Returns:
-        None: Grafikleri görüntüler.
-    """
-    if data is None:
-        raise ValueError("Veri sağlanmalıdır.")
-
-    # Eğer data tuple ise, gerekli bileşenleri ayrıştırın
-    if isinstance(data, tuple):
-        if len(data) < 8:
-            raise ValueError("Data tuple'ı en az 8 eleman içermelidir: (X_train, X_test, y_train, y_test, df, target_column, numerical_columns, categorical_columns).")
-        df, target_column, numerical_columns, categorical_columns = data[4], data[5], data[6], data[7]
-    elif isinstance(data, pd.DataFrame):
-        # DataFrame doğrudan sağlanmışsa, hedef ve feature sütunlarını ayrıca belirtmelisiniz
-        raise NotImplementedError("DataFrame doğrudan sağlanmışsa, lütfen target_column, numerical_columns ve categorical_columns parametrelerini ayrı olarak geçin.")
-    else:
-        raise TypeError("Data, pandas DataFrame veya (X_train, X_test, y_train, y_test, df, target_column, numerical_columns, categorical_columns) içeren bir tuple olmalıdır.")
-
-    graphics = graphics.lower()
-
-    # Grafik fonksiyonlarını tanımlayın veya ithal edin
-    graphics_dict = {
-        'corr': plot_correlation_matrix,
-
-        # Sürekli görselleştirmeler
-        'histogram': histogram_continuous,
-        'box': plot_box_continuous,
-        'scatter': plot_scatter_continuous,
-        'line': plot_line_continuous,
-        'kde': plot_kde_continuous,
-        'pair': plot_pair_continuous,
-        'violin': plot_violin_continuous,
-        'ridge': plot_ridge_continuous,
-        'area': plot_area_continuous,
-        'step': plot_step_continuous,
-        'density': plot_density_continuous,
-        'bubble': plot_bubble_continuous,
-        '3dscatter': plot_3d_scatter_continuous,
-        'parallel': plot_parallel_coordinates_continuous,
-        'hexbin': plot_hexbin_continuous,
-        'boxen': plot_boxen_continuous,
-        '3dsurface': plot_3d_surface_continuous,
-        'pca': plot_pca_continuous,
-        'tsne': plot_tsne_continuous,
-        'regression': plot_regression_continuous,
-        'joint': plot_joint_continuous,
-
-        # Kategorik görselleştirmeler
-        'bar': plot_bar_categorical,
-        'pie': plot_pie_categorical,
-        'swarm': plot_swarm_categorical,
-        'strip': plot_strip_categorical,
-        'trellis': plot_trellis_categorical,
-        'lollipop': plot_lollipop_categorical,
-        'mosaic': plot_mosaic_categorical,
-        'donut': plot_donut_categorical,
-        'sunburst': plot_sunburst_categorical,
-        'radar': plot_radar_categorical,
-        'waterfall': plot_waterfall_categorical,
-        'funnel': plot_funnel_categorical,
-        'stackedbar': plot_stacked_bar_categorical,
-        'dendrogram': plot_dendrogram_categorical,
-        'facetgrid': plot_facet_grid_categorical,
-    }
-
-    if graphics not in graphics_dict:
-        raise ValueError(f"Geçersiz grafik türü. Aşağıdakilerden birini seçin: {', '.join(graphics_dict.keys())}")
-
-    graphics_func = graphics_dict[graphics]
-
-    # Grafik fonksiyonunu çağırın with the new max_plots_per_fig parameter
-    graphics_func(
-        data=df,
-        target=target_column,
-        numerical_columns=numerical_columns,
-        categorical_columns=categorical_columns,
-        cols=cols,
-        figsize=figsize,
-        palette=palette,
-        max_plots_per_fig=max_plots_per_fig
-    )
 
 def visualize(
         data,
+        target_column=None,
+        numerical_columns=None,
+        categorical_columns=None,
         graphics='kde',
         cols=3,
         figsize=(15, 15),
@@ -957,93 +1343,97 @@ def visualize(
         >>> # Example 3: Visualize categorical data using bar plots
         >>> visualize(data, graphics='bar', palette=['#1f77b4', '#ff7f0e', '#2ca02c'])
     """
-    try:
-        if data is None:
-            raise ValueError("Data must be provided.")
+    if data is None:
+        raise ValueError("Data must be provided.")
 
-        # If data is a tuple, unpack the necessary components
-        if isinstance(data, tuple):
-            if len(data) < 8:
-                raise ValueError("Data tuple must contain at least 8 elements: (X_train, X_test, y_train, y_test, df, target_column, numerical_columns, categorical_columns).")
-            df, target_column, numerical_columns, categorical_columns = data[4], data[5], data[6], data[7]
-        elif isinstance(data, pd.DataFrame):
-            # If DataFrame is provided directly, target and feature columns must be specified separately
-            raise NotImplementedError("If a DataFrame is provided directly, please pass target_column, numerical_columns, and categorical_columns as separate parameters.")
-        else:
-            raise TypeError("Data must be a pandas DataFrame or a tuple containing (X_train, X_test, y_train, y_test, df, target_column, numerical_columns, categorical_columns).")
+    # If data is a tuple, unpack the necessary components
+    if isinstance(data, tuple):
+        if len(data) < 8:
+            raise ValueError("Data tuple must contain at least 8 elements: (X_train, X_test, y_train, y_test, df, target_column, numerical_columns, categorical_columns).")
+        df, target_column, numerical_columns, categorical_columns = data[4], data[5], data[6], data[7]
+    elif isinstance(data, pd.DataFrame):
+        if target_column is None:
+             raise ValueError("If a DataFrame is provided directly, 'target_column' must be specified.")
+        
+        # If numerical/categorical columns are not provided, we could infer them, but for now strict requirement
+        # Or better yet, infer them if None
+        if numerical_columns is None:
+             numerical_columns = data.select_dtypes(include=[np.number]).columns.tolist()
+             if target_column in numerical_columns:
+                 numerical_columns.remove(target_column)
 
-        graphics = graphics.lower()
+        if categorical_columns is None:
+             categorical_columns = data.select_dtypes(include=['object', 'category']).columns.tolist()
+             if target_column in categorical_columns:
+                 categorical_columns.remove(target_column)
+                 
+        df = data
+    else:
+        raise TypeError("Data must be a pandas DataFrame or a tuple containing (X_train, X_test, y_train, y_test, df, target_column, numerical_columns, categorical_columns).")
 
-        # Define or import graphic functions
-        graphics_dict = {
-            'corr': plot_correlation_matrix,
+    graphics = graphics.lower()
 
-            # Continuous visualizations
-            'histogram': histogram_continuous,
-            'box': plot_box_continuous,
-            'scatter': plot_scatter_continuous,
-            'line': plot_line_continuous,
-            'kde': plot_kde_continuous,
-            'pair': plot_pair_continuous,
-            'violin': plot_violin_continuous,
-            'ridge': plot_ridge_continuous,
-            'area': plot_area_continuous,
-            'step': plot_step_continuous,
-            'density': plot_density_continuous,
-            'bubble': plot_bubble_continuous,
-            '3dscatter': plot_3d_scatter_continuous,
-            'parallel': plot_parallel_coordinates_continuous,
-            'hexbin': plot_hexbin_continuous,
-            'boxen': plot_boxen_continuous,
-            '3dsurface': plot_3d_surface_continuous,
-            'pca': plot_pca_continuous,
-            'tsne': plot_tsne_continuous,
-            'regression': plot_regression_continuous,
-            'joint': plot_joint_continuous,
+    # Define or import graphic functions
+    graphics_dict = {
+        'corr': plot_correlation_matrix,
 
-            # Categorical visualizations
-            'bar': plot_bar_categorical,
-            'pie': plot_pie_categorical,
-            'swarm': plot_swarm_categorical,
-            'strip': plot_strip_categorical,
-            'trellis': plot_trellis_categorical,
-            'lollipop': plot_lollipop_categorical,
-            'mosaic': plot_mosaic_categorical,
-            'donut': plot_donut_categorical,
-            'sunburst': plot_sunburst_categorical,
-            'radar': plot_radar_categorical,
-            'waterfall': plot_waterfall_categorical,
-            'funnel': plot_funnel_categorical,
-            'stackedbar': plot_stacked_bar_categorical,
-            'dendrogram': plot_dendrogram_categorical,
-            'facetgrid': plot_facet_grid_categorical,
-        }
+        # Continuous visualizations
+        'histogram': histogram_continuous,
+        'box': plot_box_continuous,
+        'scatter': plot_scatter_continuous,
+        'line': plot_line_continuous,
+        'kde': plot_kde_continuous,
+        'pair': plot_pair_continuous,
+        'violin': plot_violin_continuous,
+        'ridge': plot_ridge_continuous,
+        'area': plot_area_continuous,
+        'step': plot_step_continuous,
+        'density': plot_density_continuous,
+        'bubble': plot_bubble_continuous,
+        '3dscatter': plot_3d_scatter_continuous,
+        'parallel': plot_parallel_coordinates_continuous,
+        'hexbin': plot_hexbin_continuous,
+        'boxen': plot_boxen_continuous,
+        '3dsurface': plot_3d_surface_continuous,
+        'pca': plot_pca_continuous,
+        'tsne': plot_tsne_continuous,
+        'regression': plot_regression_continuous,
+        'joint': plot_joint_continuous,
 
-        if graphics not in graphics_dict:
-            raise ValueError(f"Invalid graphics type. Choose one of: {', '.join(graphics_dict.keys())}")
+        # Categorical visualizations
+        'bar': plot_bar_categorical,
+        'pie': plot_pie_categorical,
+        'swarm': plot_swarm_categorical,
+        'strip': plot_strip_categorical,
+        'trellis': plot_trellis_categorical,
+        'lollipop': plot_lollipop_categorical,
+        'mosaic': plot_mosaic_categorical,
+        'donut': plot_donut_categorical,
+        'sunburst': plot_sunburst_categorical,
+        'radar': plot_radar_categorical,
+        'waterfall': plot_waterfall_categorical,
+        'funnel': plot_funnel_categorical,
+        'stackedbar': plot_stacked_bar_categorical,
+        'dendrogram': plot_dendrogram_categorical,
+        'facetgrid': plot_facet_grid_categorical,
+    }
 
-        graphics_func = graphics_dict[graphics]
+    if graphics not in graphics_dict:
+        raise ValueError(f"Invalid graphics type. Choose one of: {', '.join(graphics_dict.keys())}")
 
-        # Call the graphic function with the provided parameters
-        graphics_func(
-            data=df,
-            target=target_column,
-            numerical_columns=numerical_columns,
-            categorical_columns=categorical_columns,
-            cols=cols,
-            figsize=figsize,
-            palette=palette,
-            max_plots_per_fig=max_plots_per_fig
-        )
+    graphics_func = graphics_dict[graphics]
 
-    except ValueError as ve:
-        print(f"ValueError caught: {ve}")
-    except TypeError as te:
-        print(f"TypeError caught: {te}")
-    except NotImplementedError as nie:
-        print(f"NotImplementedError caught: {nie}")
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+    # Call the graphic function with the provided parameters
+    graphics_func(
+        data=df,
+        target=target_column,
+        numerical_columns=numerical_columns,
+        categorical_columns=categorical_columns,
+        cols=cols,
+        figsize=figsize,
+        palette=palette,
+        max_plots_per_fig=max_plots_per_fig
+    )
 
 
 # kullanım

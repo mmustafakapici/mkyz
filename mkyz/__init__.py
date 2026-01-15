@@ -1,7 +1,7 @@
 # mkyz - Machine Learning Library
 # Simplifies data processing, model training, evaluation, and visualization
 
-__version__ = "0.2.1"
+__version__ = "0.2.3"
 
 # ============================================================
 # Constants

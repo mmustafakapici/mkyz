@@ -61,6 +61,7 @@ nav:
       - Data: api/data.md
       - EDA: api/eda.md
       - Evaluation: api/evaluation.md
+      - Visualization: api/visualization.md
       - Persistence: api/persistence.md
       - Utils: api/utils.md
   - Changelog: changelog.md

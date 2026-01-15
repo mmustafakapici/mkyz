@@ -370,7 +370,8 @@ def select_features(X: pd.DataFrame,
             score_func = mutual_info_classif
         else:
             score_func = mutual_info_regression
-    elif method == 'f_score':
+            score_func = mutual_info_regression
+    elif method == 'f_score' or method == 'f_regression' or method == 'f_classif':
         if task == 'classification':
             score_func = f_classif
         else:
