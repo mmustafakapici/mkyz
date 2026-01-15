@@ -2,12 +2,12 @@ from setuptools import setup, find_packages
 
 setup(
     name='mkyz',
-    version='0.2.1',
+    version='0.2.2',
     packages=find_packages(),
     install_requires=[
         'pandas', 'scikit-learn', 'seaborn', 'matplotlib', 
         'mlxtend', 'numpy', 'plotly', 'statsmodels', 
-        'xgboost', 'lightgbm', 'catboost', 'rich',
+        'xgboost', 'lightgbm', 'catboost', 'rich', 'optuna', 'scipy',
     ],
     description='MKYZ is a Python library for ML and data science tasks.',
     long_description=open('README.md', encoding='utf-8').read(),
