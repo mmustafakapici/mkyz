@@ -8,7 +8,19 @@
 
 **MKYZ** is a comprehensive Python machine learning library designed to simplify data processing, model training, evaluation, and visualization tasks. Built on top of scikit-learn, it provides a unified API for common ML workflows.
 
-## ✨ Features
+## 📚 Examples
+
+You can find comprehensive Jupyter notebooks in the [examples/](examples/) directory:
+
+- [01_quickstart.ipynb](examples/01_quickstart.ipynb): End-to-end basic ML workflow.
+- [02_data_profiling_and_eda.ipynb](examples/02_data_profiling_and_eda.ipynb): Data profiling and HTML reports.
+- [03_feature_engineering.ipynb](examples/03_feature_engineering.ipynb): Advanced feature creation.
+- [04_automl_and_optimization.ipynb](examples/04_automl_and_optimization.ipynb): AutoML and hyperparameter tuning.
+- [05_model_persistence_and_reports.ipynb](examples/05_model_persistence_and_reports.ipynb): Saving models and rich reports.
+
+---
+
+## 🏗️ Architecture
 
 ### Core Capabilities
 - **🔄 Data Preparation** - Automatic handling of missing values, outliers, and categorical encoding
