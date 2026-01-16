@@ -178,16 +178,19 @@ def load_sample_dataset(name: str = 'iris') -> pd.DataFrame:
     """Load a sample dataset for testing.
     
     Args:
-        name: Dataset name ('iris', 'boston', 'titanic', 'wine')
-        
+        name: Dataset name ('iris', 'boston', 'breast_cancer', 'diabetes')
+
     Returns:
         Sample DataFrame
     """
-    from sklearn.datasets import load_iris, load_wine
+    from sklearn.datasets import load_iris, load_wine , load_breast_cancer , load_diabetes
     
     datasets = {
         'iris': lambda: _sklearn_to_df(load_iris()),
         'wine': lambda: _sklearn_to_df(load_wine()),
+        
+        'breast_cancer': lambda: _sklearn_to_df(load_breast_cancer()),
+        'diabetes': lambda: _sklearn_to_df(load_diabetes())
     }
     
     if name not in datasets:

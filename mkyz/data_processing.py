@@ -367,8 +367,3 @@ def prepare_data(filepath, target_column=None, numerical_columns=None, categoric
 
     return X_train, X_test, y_train, y_test, df, target_column, numerical_columns, categorical_columns
 
-# ---- Kullanım Örneği ----
-if __name__ == "__main__":
- 
-    # Veri setini hazırlama
-    data = prepare_data('data.csv')

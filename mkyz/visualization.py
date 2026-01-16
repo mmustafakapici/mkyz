@@ -1436,25 +1436,3 @@ def visualize(
     )
 
 
-# kullanım
-
-if __name__ == "__main__":
-   
-   
-    import data_processing as dp
-          
-    data_path = 'data.csv'
-    data = dp.prepare_data(data_path)
-    visualize(data, graphics='corr')
-   
-    #bütün grafikleri görselleştir
-    graphics = ['histogram', 'box', 'scatter', 'line', 'kde',  'violin', 'ridge', 'area', 'step', 'density',
-                'bubble',  'parallel', 'hexbin', 'boxen',  'pca', 'tsne', 'regression', 
-                 'bar', 'pie', 'swarm', 'strip', 'trellis', 'lollipop', 'mosaic', 'donut', 'sunburst', 
-                'radar', 'waterfall', 'funnel', 'stackedbar', 'dendrogram', 'facetgrid',
-                'joint' ,'pair', '3dsurface','3dscatter',]
-   
-   
-   
-    for graphic in graphics:
-        visualize(data, graphics=graphic)

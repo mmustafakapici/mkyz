@@ -1,7 +1,7 @@
 # MKYZ - Machine Learning Library
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.2.0-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.2.3-blue.svg" alt="Version">
   <img src="https://img.shields.io/badge/python-3.6+-green.svg" alt="Python">
   <img src="https://img.shields.io/badge/license-MIT-orange.svg" alt="License">
 </p>
@@ -55,47 +55,82 @@ pandas, scikit-learn, numpy, matplotlib, seaborn,
 plotly, xgboost, lightgbm, catboost, rich, mlxtend
 ```
 
-## 🚀 Quick Start
+## 🎯 Choose Your API
 
-### Basic Usage (Original API)
+MKYZ provides two APIs for different use cases:
+
+### Basic API
+
+For quick tasks and beginners. Simple functions that handle common ML workflows automatically.
+
+**Best for:** Quick prototyping, learning, simple projects
+
+**Key functions:** `prepare_data()`, `train()`, `predict()`, `evaluate()`, `auto_train()`, `visualize()`
+
+### Modular API
+
+For advanced users and production. Granular control over every step.
+
+**Best for:** Production systems, custom workflows, advanced features
+
+**Key modules:** `core.config`, `data`, `evaluation`, `persistence`, `utils`
+
+---
+
+## 📚 Basic API Guide
+
+The Basic API provides simple functions for common ML tasks:
 
 ```python
 import mkyz
 
-# 1. Prepare data
+# 1. Prepare data (automatic preprocessing)
 data = mkyz.prepare_data('dataset.csv', target_column='price')
+X_train, X_test, y_train, y_test, df, target, num_cols, cat_cols = data
 
-# 2. Train model
+# 2. Train a model
 model = mkyz.train(data, task='classification', model='rf')
 
 # 3. Make predictions
-predictions = mkyz.predict(data, model)
+predictions = mkyz.predict(data, model, task='classification')
 
 # 4. Evaluate
-scores = mkyz.evaluate(data, predictions)
+scores = mkyz.evaluate(data, predictions, task='classification')
 print(scores)
 
 # 5. Visualize
-mkyz.visualize(data)
+mkyz.visualize(data, graphics='histogram')
 ```
 
-### AutoML - Find the Best Model
+### AutoML with Basic API
 
 ```python
 import mkyz
 
 data = mkyz.prepare_data('dataset.csv', target_column='target')
 
-# Automatically train and compare all models
+# Automatically find the best model
 best_model = mkyz.auto_train(
-    data, 
+    data,
     task='classification',
     optimize_models=True,
     optimization_method='bayesian'
 )
 ```
 
-### New Modular API (v0.2.0)
+### Basic API Examples
+
+| Example | Notebook | Description |
+|---------|----------|-------------|
+| Binary Classification | [examples/simple_api/01_binary_classification_heart.ipynb](examples/simple_api/01_binary_classification_heart.ipynb) | Heart disease prediction |
+| Regression | [examples/simple_api/02_regression_exam.ipynb](examples/simple_api/02_regression_exam.ipynb) | Exam score prediction |
+| Clustering | [examples/simple_api/03_clustering_customers.ipynb](examples/simple_api/03_clustering_customers.ipynb) | Customer segmentation |
+
+---
+
+## 🔧 Modular API Guide
+
+The Modular API provides fine-grained control over your ML pipeline:
 
 ```python
 import mkyz
@@ -104,7 +139,7 @@ import mkyz
 mkyz.set_config(random_state=42, n_jobs=-1, verbose=1)
 
 # Load data flexibly
-df = mkyz.load_data('data.csv')  # Also supports Excel, JSON, Parquet
+df = mkyz.load_data('data.csv')  # Supports CSV, Excel, JSON, Parquet
 
 # Validate dataset
 validation = mkyz.validate_dataset(df, target_column='target')
@@ -128,39 +163,49 @@ results = mkyz.cross_validate(
 )
 print(f"Mean accuracy: {results['mean_test_score']:.4f}")
 
-# Save trained model
+# Save trained model with metadata
 mkyz.save_model(model, 'models/my_model', metadata={'version': '1.0'})
-
-# Load model later
-model = mkyz.load_model('models/my_model.joblib')
 
 # Generate comprehensive report
 report = mkyz.ModelReport(model, X_test, y_test, task='classification')
 report.generate()
 report.export_html('reports/model_report.html')
-print(report.summary())
 ```
+
+### Modular API Examples
+
+| Example | Notebook | Description |
+|---------|----------|-------------|
+| Binary Classification | [examples/modular_api/01_binary_classification_heart.ipynb](examples/modular_api/01_binary_classification_heart.ipynb) | Heart disease with validation, CV |
+| Multiclass Classification | [examples/modular_api/02_multiclass_classification_wine.ipynb](examples/modular_api/02_multiclass_classification_wine.ipynb) | Wine quality classification |
+| Univariate Regression | [examples/modular_api/03_univariate_regression_exam.ipynb](examples/modular_api/03_univariate_regression_exam.ipynb) | Exam score prediction |
+| Multivariate Regression | [examples/modular_api/04_multivariate_regression_housing.ipynb](examples/modular_api/04_multivariate_regression_housing.ipynb) | Boston housing prices |
+| Clustering | [examples/modular_api/05_clustering_customers.ipynb](examples/modular_api/05_clustering_customers.ipynb) | Customer segmentation |
+| Dimensionality Reduction | [examples/modular_api/06_dimensionality_reduction_wine.ipynb](examples/modular_api/06_dimensionality_reduction_wine.ipynb) | Wine PCA visualization |
+| Anomaly Detection | [examples/modular_api/07_anomaly_detection_creditcard.ipynb](examples/modular_api/07_anomaly_detection_creditcard.ipynb) | Credit card fraud |
 
 ## 📚 Documentation
 
-### Modules Overview
+### API Reference
 
-| Module | Description |
-|--------|-------------|
-| `mkyz.core` | Configuration, exceptions, base classes |
-| `mkyz.data` | Data loading, preprocessing, feature engineering |
-| `mkyz.evaluation` | Metrics, cross-validation, reporting |
-| `mkyz.persistence` | Model saving and loading |
-| `mkyz.utils` | Logging and parallel processing utilities |
+| API | Description | Link |
+|-----|-------------|------|
+| **Basic API** | Simple functions for quick ML tasks | [docs/basic_api.md](docs/basic_api.md) |
+| **Core Module** | Configuration and exceptions | [docs/api/core.md](docs/api/core.md) |
+| **Data Module** | Data processing functions | [docs/api/data.md](docs/api/data.md) |
+| **Evaluation Module** | Metrics and cross-validation | [docs/api/evaluation.md](docs/api/evaluation.md) |
+| **Persistence Module** | Model serialization | [docs/api/persistence.md](docs/api/persistence.md) |
+| **Utils Module** | Logging and parallel processing | [docs/api/utils.md](docs/api/utils.md) |
 
 ### Detailed Guides
 
 - [Installation Guide](docs/installation.md)
 - [Quick Start Tutorial](docs/quickstart.md)
+- [Basic API Reference](docs/basic_api.md)
+- [Metrics and Visualizations Guide](docs/guides/metrics_and_visualizations.md) - **NEW!** Choose the right metrics and plots
 - [Data Preparation Guide](docs/guides/data_preparation.md)
 - [Feature Engineering Guide](docs/guides/feature_engineering.md)
 - [Model Training Guide](docs/guides/model_training.md)
-- [API Reference](docs/api/index.md)
 
 ## 🔧 Supported Models
 

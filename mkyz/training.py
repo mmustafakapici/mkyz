@@ -963,16 +963,4 @@ def auto_train(data, task='classification', n_threads=1, optimize_models=False, 
 
 
 
-# ---- Kullanım Örneği ----
-if __name__ == "__main__":
-
-
-    import data_processing as dp
-
-    data= dp.prepare_data('data.csv')
-
-    # Hiperparametre optimizasyonu olmadan auto_train çalıştır
-    best_model = auto_train(data, task='classification', n_threads=3, optimize_models=True , optimization_method='bayesian')
-
-
 
